@@ -55,6 +55,11 @@ const int16_t max_trajectory_confidence = 5; // number of consecutive negative o
 #ifndef ORANGE_AVOIDER_VISUAL_DETECTION_ID
 #define ORANGE_AVOIDER_VISUAL_DETECTION_ID ABI_BROADCAST
 #endif
+
+#ifndef ORANGE_AVOIDER_OPTICAL_FLOW_ID
+#define ORANGE_AVOIDER_VISUAL_DETECTION_ID ABI_BROADCAST
+#endif
+
 static abi_event color_detection_ev;
 static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
                                int16_t __attribute__((unused)) pixel_x, int16_t __attribute__((unused)) pixel_y,
@@ -67,6 +72,8 @@ static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
 void mav_exercise_init(void) {
   // bind our colorfilter callbacks to receive the color filter outputs
   AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
+  // include the file to get idx_camera
+  AbiBindMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID + idx_camera, )
 }
 
 void mav_exercise_periodic(void) {
@@ -108,7 +115,9 @@ void mav_exercise_periodic(void) {
       waypoint_move_here_2d(WP_GOAL);
       waypoint_move_here_2d(WP_TRAJECTORY);
 
-      navigation_state = HOLD;
+      // navigation_state = HOLD;
+      increase_nav_heading(20);
+      navigation_state = SAFE;
       break;
     case OUT_OF_BOUNDS:
       // stop
