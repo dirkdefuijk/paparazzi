@@ -80,6 +80,14 @@ float current_time = 0;
 float last_time = 0;
 float FPS_orange_avoider = 0;
 
+// global vars for heading changes
+int16_t heading_change = 0;
+int16_t req_heading_change = 0;
+
+// keep track of previous state
+enum navigation_state_t prev_navigation_state = SEARCH_FOR_SAFE_HEADING;
+
+
 /*
  * This next section defines an ABI messaging event (http://wiki.paparazziuav.org/wiki/ABI), necessary
  * any time data calculated in another module needs to be accessed. Including the file where this external
@@ -154,15 +162,20 @@ void orange_avoider_periodic(void)
 
   float moveDistance = fminf(maxDistance, (0.2f * obstacle_free_confidence) + 0.2);
 
+
   switch (navigation_state){
     case SAFE:
       // Move waypoint forward
       moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
 
       if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+        // keep track of previous nav state
+        prev_navigation_state = navigation_state;
         navigation_state = OUT_OF_BOUNDS;
       } else if (obstacle_free_confidence == 0){
-        navigation_state = OBSTACLE_FOUND;
+        // keep track of previous nav state
+        prev_navigation_state = navigation_state;
+        navigation_state = OBSTACLE_FOUND;  
       } else {
         moveWaypointForward(WP_GOAL, moveDistance);
       }
@@ -174,12 +187,18 @@ void orange_avoider_periodic(void)
       //waypoint_move_here_2d(WP_TRAJECTORY);
 
       // randomly select new search direction
+
+      // reset heading change
+      heading_change = 0; 
       chooseRandomIncrementAvoidance();
 
       // What does this do exactly?
       increase_nav_heading(heading_increment);
+      heading_change += heading_increment;
       // moveWaypointForward(WP_TRAJECTORY, 1.5f * 0.1f);
       moveWaypointAcross(WP_TRAJECTORY, 0.5f* 0.1f , heading_increment);
+      // keep track of previous nav state
+      prev_navigation_state = navigation_state;
       navigation_state = SEARCH_FOR_SAFE_HEADING;
 
       break;
@@ -187,10 +206,26 @@ void orange_avoider_periodic(void)
       heading_increment = heading_increment/abs(heading_increment)*5;
       increase_nav_heading(heading_increment);
       moveWaypointAcross(WP_TRAJECTORY, 1.5f , heading_increment+10);
-      // make sure we have a couple of good readings before declaring the way safe
-      if (obstacle_free_confidence >= 2){
-        navigation_state = SAFE;
+
+      
+      if(prev_navigation_state == OUT_OF_BOUNDS){
+        // make sure we have a couple of good readings before declaring the way safe
+        if (obstacle_free_confidence >= 2){
+          // keep track of previous nav state
+          prev_navigation_state = navigation_state;
+          navigation_state = SAFE;
+        }
       }
+
+      if(prev_navigation_state == OBSTACLE_FOUND){
+        // turn to safe side until required heading change is (almost) reached.
+        if (fabs(heading_change - req_heading_change) < 3){
+          // keep track of previous nav state
+          prev_navigation_state = navigation_state;
+          navigation_state = SAFE;
+      }
+
+      heading_change += heading_increment;
       break;
     case OUT_OF_BOUNDS:
 
@@ -342,21 +377,25 @@ uint8_t chooseRandomIncrementAvoidance(void)
   
   if (object_center_y > 0 && object_center_y < 130) {
     heading_increment = 20.f;
+    req_heading_change = (45+90)/2; // we must turn to right-most section.
     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
   }
   
   if (object_center_y > 130 && object_center_y < 260){
     heading_increment = 5.f;
+    req_heading_change = 45/2; // we must turn to center-right section. (note = 22)
     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
   }
 
   if (object_center_y < 0 && object_center_y > -130) {
     heading_increment = -20.f;
+    req_heading_change = -45/2; // we must turn to center-left section.
     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
   }
   
   if (object_center_y < -130 && object_center_y > -260){
     heading_increment = -5.f;
+    req_heading_change = -(45+90)/2; // we must turn to left-most section.
     VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
   }
 
