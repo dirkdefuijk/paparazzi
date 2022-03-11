@@ -194,8 +194,7 @@ int run_water(){
 
   return best_section
 }
-//new main --W
-int best_section = test_water();
+
 //-----------------------------------------------------------------------------------------
 /*
  * Background detector
@@ -203,34 +202,12 @@ int best_section = test_water();
  * @param filter - which detection filter to process
  * @return img
  */
-// static struct image_t *object_detector(struct image_t *img, uint8_t filter)
-// {
-//   // uint8_t 
-//   // bool draw;
-
-//   switch (filter){
-//     case 1:
-
-//       break;
-//     case 2:
-
-//       break;
-//     default:
-//       return img;
-//   };
-
-//   int32_t x_c, y_c;
-
-//   // Filter and find centroid
-//   // uint32_t best = 
-//   // VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
-  
-//   pthread_mutex_lock(&mutex);
-//   // filtering was done in here
-//   pthread_mutex_unlock(&mutex);
-
-//   return img;
-// }
+static int best_section *object_detector(struct image_t *img, uint8_t filter)
+{
+  //new main --W
+  int best_section = test_water();
+  return best_section;
+}
 
 
 struct image_t *object_detector1(struct image_t *img, uint8_t camera_id);

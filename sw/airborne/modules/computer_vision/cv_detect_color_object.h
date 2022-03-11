@@ -31,10 +31,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 // Added includes --W
-using namespace std;
-#include <opencv2/core/core_c.h>
+//TODO: Check if no namespace breaks things
+// using namespace std; // is C++
+// #include <opencv2/core/core_c.h>
+// #include <opencv2/core/core_c.h>
+// #include <./sw/ext/opencv_bebop/opencv/modules/core/include/opencv2/core/core_c.h>
+#include "./sw/ext/opencv_bebop/opencv/modules/core/include/opencv2/core/core_c.h"
+// #include <ext/opencv_bebop/opencv/modules/core/include/opencv2/core/core_c.h>
 #include <opencv2/imgproc/imgproc_c.h>
-using namespace cv;
+// using namespace cv; // is C++
 #include "opencv_image_functions.h"
 
 
