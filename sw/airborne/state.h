@@ -1204,7 +1204,12 @@ static inline struct FloatRates *stateGetBodyRates_f(void)
   }
   return &state.body_rates_f;
 }
-
+/// Get current FPS rate --w
+static inline struct FloatRates *stateGetBodyRates_f(void)
+{
+  stateCalcFPS
+  return &state.fps_f;
+}
 /** @}*/
 
 

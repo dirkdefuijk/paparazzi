@@ -30,27 +30,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+// Added includes --W
+using namespace std;
+#include <opencv2/core/core_c.h>
+#include <opencv2/imgproc/imgproc_c.h>
+using namespace cv;
+#include "opencv_image_functions.h"
 
-// Module settings
-extern uint8_t cod_lum_min1;
-extern uint8_t cod_lum_max1;
-extern uint8_t cod_cb_min1;
-extern uint8_t cod_cb_max1;
-extern uint8_t cod_cr_min1;
-extern uint8_t cod_cr_max1;
 
-extern uint8_t cod_lum_min2;
-extern uint8_t cod_lum_max2;
-extern uint8_t cod_cb_min2;
-extern uint8_t cod_cb_max2;
-extern uint8_t cod_cr_min2;
-extern uint8_t cod_cr_max2;
-
-extern bool cod_draw1;
-extern bool cod_draw2;
+// TODO: variables here
+// extern uint8_t cod_lum_min1;
+// extern bool cod_draw1;
 
 // Module functions
-extern void color_object_detector_init(void);
-extern void color_object_detector_periodic(void);
+// extern void color_object_detector_init(void);
+// extern void color_object_detector_periodic(void);
 
 #endif /* COLOR_OBJECT_DETECTOR_CV_H */

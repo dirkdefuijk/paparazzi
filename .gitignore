@@ -198,8 +198,8 @@ tests/results/*
 # K-develop
 *.kate-swp
 
+Test_runs/
+
 AE4317_2019_datasets/
 
-.idea/
-
-Test_runs/
+.vscode/

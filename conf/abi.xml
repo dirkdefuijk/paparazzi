@@ -192,6 +192,23 @@
       <field name="quality"      type="int32_t">Detection quality</field>
       <field name="extra"        type="int16_t">Extra field for options like detector source etc</field>
     </message>
+    
+    <message name="WATERSHED_SECTIONS" id="69">
+    <!--Made it all arrays so each has value for the different sections-->
+      <field name="pixel_x"      type="int16_t[8]">Center pixel X</field>  <!--Center of the white area in a section-->
+      <field name="pixel_y"      type="int16_t[8]">Center pixel Y</field>
+      <field name="pixel_width"  type="int16_t[8]">Width in pixels</field> <!--Position of section-->
+      <field name="pixel_height" type="int16_t[8]">Height in pixels</field>
+      <field name="quality"      type="int32_t[8]">Detection quality</field> <!--Ratio of black and white in the image, which is used for the threshold-->
+      <field name="sections"     type="int16_t[8]">Sections in sorted list</field> <!--Sections that have collisions not included, so empty entries are set to Null-->
+      <field name="best"         type="int16_t[8]">Best section to fly on</field>
+    </message>
+
+    <message name="WATERSHED_BEST" id="42">
+    <!--Made it all arrays so each has value for the different sections-->
+      <field name="best"         type="int16_t[8]">Best section to fly on</field>
+    </message>
+
 
     <message name="JOYSTICK" id="28">
       <!-- 

@@ -63,6 +63,7 @@ static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
                                int32_t quality, int16_t __attribute__((unused)) extra) {
   color_count = quality;
 }
+static void color_gray_scale( uint8_t double   )
 
 void mav_exercise_init(void) {
   // bind our colorfilter callbacks to receive the color filter outputs
