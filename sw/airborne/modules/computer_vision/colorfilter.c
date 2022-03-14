@@ -64,11 +64,7 @@ static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id _
                                        color_cb_min, color_cb_max,
                                        color_cr_min, color_cr_max
                                       );
-  // Transform image buffer img into an OpenCV YUV422 Mat
-  // Mat M( height , width , CV_8UC2 , img );
-  // // Convert to OpenCV BGR
-  // Mat image ;
-  // gray = cvtColor (M , image , COLOR_BGR2GRAY )
+
   if (COLORFILTER_SEND_OBSTACLE) {
     if (color_count > 20)
     {

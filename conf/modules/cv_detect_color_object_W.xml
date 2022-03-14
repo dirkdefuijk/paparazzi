@@ -51,7 +51,6 @@
   <dep>
     <depends>video_thread</depends>
   </dep>
-
   <header>
     <file name="cv_detect_color_object.hpp"/>
   </header>
@@ -61,6 +60,14 @@
   <makefile target="ap|nps">
     <file name="cv_detect_color_object.cpp"/>
   </makefile>
-</module>
+  <!-- <header>
+    <file name="cv_detect_color_object.h"/>
+  </header>
 
+  <init fun="color_object_detector_init()"/>
+  <periodic fun="color_object_detector_periodic()" freq="50"/>
+  <makefile target="ap|nps">
+    <file name="cv_detect_color_object.c"/>
+  </makefile> -->
+</module>
 
