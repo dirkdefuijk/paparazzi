@@ -515,7 +515,7 @@
 #ifndef COLOR_OBJECT_DETECTION1_ID
 #define COLOR_OBJECT_DETECTION1_ID 1
 #endif
-
+// Wtf do we need to do with this... ? --W
 #ifndef COLOR_OBJECT_DETECTION2_ID
 #define COLOR_OBJECT_DETECTION2_ID 2
 #endif

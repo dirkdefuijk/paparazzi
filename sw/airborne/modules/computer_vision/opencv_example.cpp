@@ -55,91 +55,118 @@ Mat watershedder (char *img, int width, int height)
   // img_gray_rot = ndimage.rotate(gray, 90)
   return sure_fg
 } 
-int partition7(Mat image){
-  static int sections[7];
+
+Mat[9] partition_9_vertical(Mat image){
+  static Mat img_sections[9];
+  static int N = 9;
   height = (int) sizeof(image[0]);
   width  = (int) sizeof(image[1]);
-  // Cut the image in half
-  width_cutoff = width / 3
-  left1 = img[:, :width_cutoff]
-  mid1 = img[:, width_cutoff:(2*width_cutoff)]
-  right1 = img[:, (2*width_cutoff):]
-  // finish vertical devide image
-  /* ##########################################
-  # At first Horizontal devide left1 image #
-  ########################################## */
-  //rotate image LEFT1 to 90 CLOCKWISE
-  img = cv2.rotate(left1, cv2.ROTATE_90_CLOCKWISE)
-  // start vertical devide image
+  width_cutoff = width / N;
 
-  width = img.shape[1]
-  // Cut the image in half
-  width_cutoff = width // 2
-  l1 = img[:, :width_cutoff]
-  l2 = img[:, width_cutoff:]
-  // finish vertical devide image
-  // rotate image to 90 COUNTERCLOCKWISE
-  l1 = cv2.rotate(l1, cv2.ROTATE_90_COUNTERCLOCKWISE)
-  /*##########################################
-  # At first Horizontal devide right1 image#
-  ##########################################*/
-  // rotate image RIGHT1 to 90 CLOCKWISE
-  img = cv2.rotate(right1, cv2.ROTATE_90_CLOCKWISE)
-  // start vertical devide image
-  width = img.shape[1]
-  // Cut the image in half
-  width_cutoff = width // 2
-  r1 = img[:, :width_cutoff]
-  r2 = img[:, width_cutoff:]
-  // finish vertical devide image
-  //rotate image to 90 COUNTERCLOCKWISE
-  r1 = cv2.rotate(r1, cv2.ROTATE_90_COUNTERCLOCKWISE)
-  img = cv2.rotate(right1, cv2.ROTATE_90_CLOCKWISE)
-  width = img.shape[1]
-  width_cutoff = width // 3
-  m1 = img[:, :width_cutoff]
-  m2 = img[:, width_cutoff:(2*width_cutoff)]
-  m3 = img[:, (2*width_cutoff):]
-  sections = [l1,l2,m1,m2,m3,r1,r2]
-  return sections
+  for (size_t i = 0; i < N; i++)
+  {
+    if (i==0)
+    {
+      sections[0] = img[:, :width_cutoff*i] 
+    }else{
+      sections[i] = img[width_cutoff*(i-1), :width_cutoff*i] 
+    }
+  }
+  return img_sections
 }
 
+// int collisions(Mat[9] img_sections, double* ratio, double* ratio_best){
+int collisions(Mat[9] img_sections){
+  // int white = 0     // collision pixels
+  // int black = 0 // free pixel
+  struct pixels{
+    int white = 0;
+    int black = 0;  };
+  int size = 0 // size of the section
+  int sections[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int best_index = NULL;
+  
+  for (size_t i = 0; i < 9; i++)
+  {
+    counter_fast(sections[i])
+    size = (int) sizeof(section);
+    ratio[i] = black / size; 
+    if (ratio[i] < 0.3){ // the set threshold for allowed amount of black in an image
+      sections[i] = 1;
+      // Only matters if section would be collision free
+      if (ratio[i] <= ratio_best) // the equal ensures that good options don't end up at the end or forgotten
+      {
+        ratio_best = ratio[i];
+        best_index = i;
+      }
+    }
+  }
+  return best_index;
+}
+
+//Function to count the colour of the pixels, either black or white
+// void counter(Mat section, int* black, int* white){
+void counter(Mat section,struct int* pixels){
+  size = (int) sizeof(section);
+  int count = 0;
+  printf("size of the section: %f", size);
+  // height = size[0]
+  // width  = size[1]
+
+  for(int i=0;i<size;i++){   
+    if(section[i]==255)
+      count++;
+        // *black++;
+  }
+  *pixels.black = count;
+  *pixels.white = size - count;
+  // *white = size - *black;
+  return 0
+}
+
+// Algo speed should not be faster, but often multiple is faster than one
+// Check section type and filetype Mat or convert?
+void counter_fast(Mat section, int* black, int* white){
+  size = (int) sizeof(section);
+  int count = 0
+  for(int i=0;i<size;i+=5){  // notice the increment in i here...
+      if(arr[i] == n)
+        count++;
+      /* check the next four indexes as well as if arr[i] is the last element of the array */ 
+      else if( arr[i+1] == n && i+1 < size)
+        count++;
+      else if (arr[i + 2] == n && i + 2 < size)
+        count++;
+      else if(arr[i+3] == n && i+3 < size)
+        count++;
+      else if(arr[i+4] == n && i+4 < size)
+        count++;
+    }
+    *black = count;
+    *white = size - black;
+    return 0
+}
+// Function that runs watershed
+int run_water(){
+  // TODO: check if typedef needed 
+  // double ratio[9] = 1.0 //relative amount what is an obstacle of the section
+  // double ratio_best = 1.0 //best ratio
+  Mat image_watershed;
+  int best_section = NULL;
+  image_watershed = watershedder();
+  best_section = collisions(image_watershed);
+  // TODO: Calculate pixels in that section 
+  // TODO: Calculate midpoint in that section 
+  // TODO: Calculate width and height of that section 
+  // TODO: create section list to share in message
+  if (best_section == NULL)  {
+    printf("shit gone wrong: %i", best_section);  }
+
+  return best_section
+}
+// original function used for the passthrough of variables
 int opencv_example(char *img, int width, int height)
 {
-
-
-/** @file "modules/wedgebug/wedgebug.h" 
- * function : // Function 3 - Creates empty 8bit kernel
- * void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height, enum image_type type) 
- *   // Creating empty kernel:
- * kernel_create(&median_kernel, kernel_median_dims.w, kernel_median_dims.h, IMAGE_GRAYSCALE);
- * kernel_create(&median_kernel16bit, kernel_median_dims.w, kernel_median_dims.h, IMAGE_INT16);
- * // Structures
-  // Kernel - processes single channel images 
-struct kernel_C1 {
-  enum image_type type;   // Type of image on which kernel is laid onto
-  uint16_t w;           //s/< Kernel width
-  uint16_t h;           ///< Kernel height
-  uint32_t buf_size;    ///< Size of values of weight buffer and values buffer
-  void *buf_weights;    ///< Kernel weight buffer
-  void *buf_values;     ///< Kernel value buffer. These are the values underneath the kernel
-};
-**/
-
-  // // Canny edges, only works with grayscale image
-  // int edgeThresh = 35;
-  // Canny(image, image, edgeThresh, edgeThresh * 3);
-  // // Convert back to YUV422, and put it in place of the original image
-  // grayscale_opencv_to_yuv422(image, img, width, height);
-
-  // // Color image example
-  // // Convert the image to an OpenCV Mat
-  // cvtColor(M, image, CV_YUV2BGR_Y422);
-  // // Blur it, because we can
-  // blur(image, image, Size(5, 5));
-  // // Convert back to YUV422 and put it in place of the original image
-  // colorbgr_opencv_to_yuv422(image, img, width, height);
-
-
-  return 0;
+  int best_section =  run_water(char *img, int width, int height);
+  return best_section;
 }

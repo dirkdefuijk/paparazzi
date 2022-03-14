@@ -33,19 +33,12 @@
 // Added includes --W
 //TODO: Check if no namespace breaks things
 // using namespace std; // is C++
-// #include <opencv2/core/core_c.h>
-// #include <opencv2/core/core_c.h>
-
-// #include <./sw/ext/opencv_bebop/opencv/modules/core/include/opencv2/core/core_c.h>
-// #include "./sw/ext/opencv_bebop/opencv/modules/core/include/opencv2/core/core_c.h"
-// #include <ext/opencv_bebop/opencv/modules/core/include/opencv2/core/core_c.h>
+// #include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 // using namespace cv; // is C++
+#include "opencv_image_functions.h"
 
-// Includes 
-// #include <opencv2/core_c.h>
-// #include <opencv2/imgproc/imgproc_c.h>
-// #include "opencv_image_functions.h"
-#include <opencv_example.h>
 
 // TODO: variables here
 // extern uint8_t cod_lum_min1;
