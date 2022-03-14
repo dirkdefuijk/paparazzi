@@ -33,7 +33,8 @@
 // Added includes --W
 //TODO: Check if no namespace breaks things
 // using namespace std; // is C++
-#include <opencv2/core/core.hpp>
+// #include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 // using namespace cv; // is C++
 #include "opencv_image_functions.h"
