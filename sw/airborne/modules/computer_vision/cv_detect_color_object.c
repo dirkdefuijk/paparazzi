@@ -256,6 +256,8 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
   return cnt;
 }
 
+
+
 void color_object_detector_periodic(void)
 {
   static struct color_object_t local_filters[2];
