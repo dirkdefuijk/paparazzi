@@ -38,18 +38,23 @@ using namespace cv;
 int opencv_example(char *img, int width, int height)
 { 
   Mat M(height, width, CV_8UC2, img);
-  Mat gray;
-  Mat opening;
-  Mat background;
-  Mat M1 = Mat::ones(3,3,CV_8U);
-  cvtColor(M, gray, CV_YUV2GRAY_Y422, 0);
-  threshold(gray, gray, 0, 255, THRESH_BINARY_INV+THRESH_OTSU);
+  Mat dst;
+  Mat img_blur;
+  Mat dilation_dst;
 
-  erode(gray,gray,M1);
-  dilate(gray, opening, M1);
-  dilate(opening, background, M1, Point(-1,-1), 3);
+  cvtColor(M, M, CV_YUV2GRAY_Y422, 0);
+  GaussianBlur(M,img_blur, Size(5,5), BORDER_DEFAULT);
 
-  grayscale_opencv_to_yuv422(background, img, width, height);
+  threshold(img_blur, img_blur, 86, 255, THRESH_BINARY);
+
+  Canny(img_blur,dst,40,255,3,false);
+
+  // Mat element = getStructuringElement(MORPH_RECT,
+  //                   Size(2*1 +1,2*1+1),
+  //                   Point(-1,-1));
+  // dilate(dst, dilation_dst, element);
+
+  grayscale_opencv_to_yuv422(dst, img, width, height);
 
   return 0;
 }
