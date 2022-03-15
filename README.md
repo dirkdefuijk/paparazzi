@@ -1,3 +1,28 @@
+# GROUP 2
+
+For nav group, if you want to work with this repo:
+
+1. Install paparazzi using the crash course manual.
+2.
+```bash
+cd ~/paparazzi
+```
+3. Check which remotes are currently added.
+```bash
+git remote -v
+```
+4. If not there, add this repository as remote.
+```bash
+git remote add group2 https://github.com/dirkdefuijk/paparazzi
+```
+5. Repeat step 3 to see if it's added.
+6. Switch to desired branch. If <branch_name> doesn't exist yet, use the -b option. Otherwise skip that.
+```bash
+git checkout -b <branch_name>
+```
+7. Push/pull whatever you want.
+
+
 # MAIN README
 
 Paparazzi UAS
