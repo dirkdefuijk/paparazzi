@@ -43,7 +43,7 @@
       <corner name="_OZ3"/>
       <corner name="_OZ4"/>
     </sector>
-    <sector color="blue" name="Segment1">
+    <sector color="blue" name="Segment3">
       <corner name="_OZ3"/>
       <corner name="_NZ3"/>
       <corner name="_NZ4"/>
@@ -55,13 +55,13 @@
       <corner name="_NZ2"/>
       <corner name="_OZ2"/>
     </sector>
-    <sector color="white" name="Segment3">
+    <sector color="white" name="Segment4">
       <corner name="_OZ1"/>
       <corner name="_NZ1"/>
       <corner name="_NZ4"/>
       <corner name="_OZ4"/>
     </sector>
-    <sector color="orange" name="Segment4">
+    <sector color="orange" name="Segment1">
       <corner name="_OZ1"/>
       <corner name="_NZ1"/>
       <corner name="_NZ2"/>
