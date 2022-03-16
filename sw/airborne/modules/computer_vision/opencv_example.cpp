@@ -129,7 +129,24 @@ Mat * partition_9_vertical(Mat image){
   }
   return best_index;
 }
+// Function that runs watershed
+int run_water(){
+  // TODO: check if typedef needed 
+  // double ratio[9] = 1.0 //relative amount what is an obstacle of the section
+  // double ratio_best = 1.0 //best ratio
+  Mat image_watershed;
+  int best_section = NULL;
+  image_watershed = watershedder();
+  best_section = collisions(image_watershed);
+  // TODO: Calculate pixels in that section 
+  // TODO: Calculate midpoint in that section 
+  // TODO: Calculate width and height of that section 
+  // TODO: create section list to share in message
+  if (best_section == NULL)  {
+    printf("shit gone wrong: %i", best_section);  }
 
+  return best_section
+}
 
 int opencv_example(char *img, int width, int height)
 { 
