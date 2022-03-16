@@ -63,8 +63,11 @@ int32_t color_count = 0;                // orange color count from color filter 
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
-// --W 
-int16_t[8] sections = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]  // The array for the ordered list of sections 
+
+// --W -- FIXED 
+int16_t* sections[8] = {NULL};  // The array for the ordered list of sections 
+int16_t best = 0; // check how to initialize
+
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -78,6 +81,11 @@ float d_covered = 0;
 // global vars for object center identification
 int16_t object_center_x = 0;
 int16_t object_center_y = 0;
+
+// global vars for FPS logging
+float current_time = 0;
+float last_time = 0;
+float FPS_orange_avoider = 0;
 
 /*
  * This next section defines an ABI messaging event (http://wiki.paparazziuav.org/wiki/ABI), necessary
@@ -93,15 +101,15 @@ int16_t object_center_y = 0;
 // cb = callback
 // extracts color_count and center_pixel from object
 static abi_event color_detection_ev;
-// TODO: Check if uint8_t[8] should be used 
+// TODO: Check if uint8_t[8] should be used -- if this is about the center pixel, no cause we need negative numbers too (uint = unsigned int)
 // static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
 //                                int16_t pixel_x, int16_t pixel_y,
 //                                int16_t pixel_width, int16_t pixel_height,
 //                                int32_t quality, int16_t sections, int16_t best),
 static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
-                               int16_t[8] pixel_x, int16_t[8] pixel_y,
-                               int16_t[8] pixel_width, int16_t[8] pixel_height,
-                               int32_t[8] quality, int16_t[8] sections, int16_t[8] best),                               
+                               int16_t* pixel_x[8], int16_t* pixel_y[8],
+                               int16_t* pixel_width[8], int16_t* pixel_height[8],
+                               int32_t* quality[8], int16_t* sections[8], int16_t* best[8])                               
 {
   // [0] is the best section found, so navigate using old navigation code on this
   // As orange avoider was based on how likely the obstacle was based on orange
@@ -110,7 +118,12 @@ static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
   color_count = quality[0]; 
   object_center_x = pixel_x[0]; // re-use this 
   object_center_y = pixel_y[0];
+  best = best[0];
 
+  // Get FPS
+  current_time = get_sys_time_float();
+  FPS_orange_avoider = 1/(current_time-last_time);
+  last_time = current_time;
 }
 /*
  * Initialisation function, setting the colour filter, random seed and heading_increment

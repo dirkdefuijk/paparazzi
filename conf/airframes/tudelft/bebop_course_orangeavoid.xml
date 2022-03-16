@@ -68,10 +68,10 @@
     </module>
 
     <!-- ADD OPENCVDEMO CAMERA DEVICE POINTER -->
-    <module name="cv_opencvdemo">
+    <!-- <module name="cv_opencvdemo">
       <define name="OPENCVDEMO_CAMERA" value="front_camera"/>
       <define name="OPENCVDEMO_FPS" value="0"/>
-    </module>
+    </module> -->
 
 
     <module name="orange_avoider">
