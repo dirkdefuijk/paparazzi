@@ -81,6 +81,10 @@ float current_time = 0;
 float last_time = 0;
 float FPS_orange_avoider = 0;
 
+// keep track of previous state
+enum navigation_state_t prev_state = SEARCH_FOR_SAFE_HEADING;
+
+
 /*
  * This next section defines an ABI messaging event (http://wiki.paparazziuav.org/wiki/ABI), necessary
  * any time data calculated in another module needs to be accessed. Including the file where this external
@@ -129,9 +133,12 @@ void orange_avoider_init(void)
  */
 void orange_avoider_periodic(void)
 {
-  VERBOSE_PRINT("center of object  x = %i\n", object_center_x);
-  VERBOSE_PRINT("center of object  y = %i\n", object_center_y);
-  VERBOSE_PRINT("FPS = %f\n", FPS_orange_avoider);
+  VERBOSE_PRINT("Current state = %d\n", navigation_state);
+  VERBOSE_PRINT("Previous state = %d\n", prev_state);
+  // VERBOSE_PRINT("center of object  x = %i\n", object_center_x);
+  // VERBOSE_PRINT("center of object  y = %i\n", object_center_y);
+  // VERBOSE_PRINT("FPS = %f\n", FPS_orange_avoider);
+  VERBOSE_PRINT("current heading = %f\n", DegOfRad(stateGetNedToBodyEulers_f()->psi));
 
   // only evaluate our state machine if we are flying
   if(!autopilot_in_flight()){
@@ -141,7 +148,7 @@ void orange_avoider_periodic(void)
   // compute current color thresholds
   int32_t color_count_threshold = oa_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
 
-  VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count_threshold, navigation_state);
+  // VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count_threshold, navigation_state);
 
   // update our safe confidence using color threshold
   if(color_count < color_count_threshold){
@@ -161,8 +168,10 @@ void orange_avoider_periodic(void)
       moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
 
       if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+        prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = OUT_OF_BOUNDS;
       } else if (obstacle_free_confidence == 0){
+        prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = OBSTACLE_FOUND;
       } else {
         moveWaypointForward(WP_GOAL, moveDistance);
@@ -181,6 +190,8 @@ void orange_avoider_periodic(void)
       increase_nav_heading(heading_increment);
       // moveWaypointForward(WP_TRAJECTORY, 1.5f * 0.1f);
       moveWaypointAcross(WP_TRAJECTORY, 0.5f* 0.1f , heading_increment);
+
+      prev_state = navigation_state; // keep track of previous state (only update if it changed)
       navigation_state = SEARCH_FOR_SAFE_HEADING;
 
       break;
@@ -191,6 +202,7 @@ void orange_avoider_periodic(void)
       //moveWaypointAcross(WP_TRAJECTORY, 0.5f , heading_increment+10);
       // make sure we have a couple of good readings before declaring the way safe
       if (obstacle_free_confidence >= 2){
+        prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = SAFE;
       }
       break;
@@ -198,42 +210,50 @@ void orange_avoider_periodic(void)
 
     	if (InsideSegment1(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment1");
-    		if (stateGetNedToBodyEulers_f()->psi > -115.f){
+    		if (stateGetNedToBodyEulers_f()->psi > -115.f){ // should the state function be converted to deg?
     			change_nav_heading((-30.f));
     			moveWaypointForward(WP_TRAJECTORY, 0.2f);
+          // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
     		} else {
     			change_nav_heading(150.f);
     			moveWaypointForward(WP_TRAJECTORY, 0.2f);
+          // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
     		}
     	}
     	if (InsideSegment3(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment3");
-			if (stateGetNedToBodyEulers_f()->psi < 65.f){
+			if (DegOfRad(stateGetNedToBodyEulers_f()->psi) < 65.f){ // see above
 				change_nav_heading((-25.f));
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+        // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			} else {
 				change_nav_heading(-200.f);
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+        // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			}
 		}
     	if (InsideSegment2(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment2");
-			if (stateGetNedToBodyEulers_f()->psi  > -25.f){
+			if (stateGetNedToBodyEulers_f()->psi  > -25.f){ // see above
 				change_nav_heading((70.f));
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+        // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			} else {
 				change_nav_heading(-120.f);
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+        // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			}
 		}
     	if (InsideSegment4(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment4");
-			if (stateGetNedToBodyEulers_f()->psi < -205.f){
+			if (DegOfRad(stateGetNedToBodyEulers_f()->psi) < -205.f){ // see above
 				change_nav_heading((60.f));
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+        // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			} else {
 				change_nav_heading(-110.f);
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+        // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			}
 		}
 
@@ -254,12 +274,15 @@ void orange_avoider_periodic(void)
         obstacle_free_confidence = 0;
 
         // ensure direction is safe before continuing
+        prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = SEARCH_FOR_SAFE_HEADING;
       }
       break;
     default:
       break;
   }
+  // just a line for debugging between time steps.
+  VERBOSE_PRINT("----------------------------------------------------------------------------\n\n");
   return;
 }
 
@@ -272,7 +295,7 @@ void log_distance_covered_periodic(void)
   dx = fabs(stateGetPositionEnu_f()->x - last_pos_x);
   dy = fabs(stateGetPositionEnu_f()->y - last_pos_y);
   d_covered = d_covered + sqrt(dx*dx+dy*dy);
-  VERBOSE_PRINT("distance covered: d = %f \n", d_covered);
+  // VERBOSE_PRINT("distance covered: d = %f \n", d_covered);
 
   // Update position
   last_pos_x = stateGetPositionEnu_f()->x;
