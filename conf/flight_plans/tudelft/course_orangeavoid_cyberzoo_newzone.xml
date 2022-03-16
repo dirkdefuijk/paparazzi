@@ -28,7 +28,7 @@
     <waypoint lat="51.9905888" lon="4.3767714" name="_NZ1"/>
     <waypoint lat="51.990642" lon="4.376716" name="_NZ2"/>
     <waypoint lat="51.990678" lon="4.3768016" name="_NZ3"/>
-    <waypoint lat="51.990625" lon="4.3768630" name="_NZ4"/>
+    <waypoint lat="51.9906243" lon="4.3768615" name="_NZ4"/>
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">

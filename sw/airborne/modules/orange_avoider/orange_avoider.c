@@ -44,6 +44,7 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
 static uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 static uint8_t increase_nav_heading(float incrementDegrees);
 static uint8_t chooseRandomIncrementAvoidance(void);
+static uint8_t change_nav_heading(float heading);
 
 enum navigation_state_t {
   SAFE,
@@ -186,7 +187,8 @@ void orange_avoider_periodic(void)
     case SEARCH_FOR_SAFE_HEADING:
       heading_increment = heading_increment/abs(heading_increment)*5;
       increase_nav_heading(heading_increment);
-      moveWaypointAcross(WP_TRAJECTORY, 1.5f , heading_increment+10);
+      moveWaypointForward(WP_TRAJECTORY, 0.2f);
+      //moveWaypointAcross(WP_TRAJECTORY, 0.5f , heading_increment+10);
       // make sure we have a couple of good readings before declaring the way safe
       if (obstacle_free_confidence >= 2){
         navigation_state = SAFE;
@@ -194,17 +196,59 @@ void orange_avoider_periodic(void)
       break;
     case OUT_OF_BOUNDS:
 
+    	if (InsideSegment1(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
+    		VERBOSE_PRINT("Im in Segment1");
+    		if (stateGetNedToBodyEulers_f()->psi > -115.f){
+    			change_nav_heading((-30.f));
+    			moveWaypointForward(WP_TRAJECTORY, 0.2f);
+    		} else {
+    			change_nav_heading(150.f);
+    			moveWaypointForward(WP_TRAJECTORY, 0.2f);
+    		}
+    	}
+    	if (InsideSegment3(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
+    		VERBOSE_PRINT("Im in Segment3");
+			if (stateGetNedToBodyEulers_f()->psi < 65.f){
+				change_nav_heading((-25.f));
+				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+			} else {
+				change_nav_heading(-200.f);
+				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+			}
+		}
+    	if (InsideSegment2(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
+    		VERBOSE_PRINT("Im in Segment2");
+			if (stateGetNedToBodyEulers_f()->psi  > -25.f){
+				change_nav_heading((70.f));
+				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+			} else {
+				change_nav_heading(-120.f);
+				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+			}
+		}
+    	if (InsideSegment4(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
+    		VERBOSE_PRINT("Im in Segment4");
+			if (stateGetNedToBodyEulers_f()->psi < -205.f){
+				change_nav_heading((60.f));
+				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+			} else {
+				change_nav_heading(-110.f);
+				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+			}
+		}
+
+
       // moveWaypointForward(WP_TRAJECTORY, 0.2f);
 
       // Test
-      heading_increment = heading_increment/abs(heading_increment)*5;
-      increase_nav_heading(heading_increment);
+      //heading_increment = heading_increment/abs(heading_increment)*5;
+      //increase_nav_heading(heading_increment);
 
-      moveWaypointForward(WP_TRAJECTORY, 1.5f);
+      //moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
       if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
         // add offset to head back into arena
-        increase_nav_heading(heading_increment);
+        //increase_nav_heading(heading_increment);
 
         // reset safe counter
         obstacle_free_confidence = 0;
@@ -250,6 +294,20 @@ uint8_t increase_nav_heading(float incrementDegrees)
   nav_heading = ANGLE_BFP_OF_REAL(new_heading);
 
   VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
+  return false;
+}
+uint8_t change_nav_heading(float heading)
+{
+  float new_heading =  RadOfDeg(heading);
+
+  // normalize heading to [-pi, pi]
+  FLOAT_ANGLE_NORMALIZE(new_heading);
+
+  // set heading, declared in firmwares/rotorcraft/navigation.h
+  // for performance reasons the navigation variables are stored and processed in Binary Fixed-Point format
+  nav_heading = ANGLE_BFP_OF_REAL(new_heading);
+
+  VERBOSE_PRINT("Changing heading to %f\n", DegOfRad(new_heading));
   return false;
 }
 
