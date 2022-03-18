@@ -23,10 +23,10 @@
     <waypoint lat="51.9906430" lon="4.3767110" name="_OZ2"/>
     <waypoint lat="51.9906830" lon="4.3768048" name="_OZ3"/>
     <waypoint lat="51.9906239" lon="4.3768684" name="_OZ4"/>
-    <waypoint lat="51.990590" lon="4.376772" name="_NZ1"/>
-    <waypoint lat="51.990642" lon="4.376718" name="_NZ2"/>
-    <waypoint lat="51.990678" lon="4.3768016" name="_NZ3"/>
-    <waypoint lat="51.990624" lon="4.376860" name="_NZ4"/>
+    <waypoint lat="51.990593" lon="4.376773" name="_NZ1"/>
+    <waypoint lat="51.990642" lon="4.376722" name="_NZ2"/>
+    <waypoint lat="51.990675" lon="4.376800" name="_NZ3"/>
+    <waypoint lat="51.990624" lon="4.376855" name="_NZ4"/>
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">

@@ -290,7 +290,12 @@ void orange_avoider_periodic(void)
         prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = SEARCH_FOR_SAFE_HEADING;
       } else {
-    	  navigation_state = OBSTACLE_FOUND;
+    	  while (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+    	      		  heading_increment = heading_increment/abs(heading_increment)*5;
+    	      		  increase_nav_heading(heading_increment);
+    	      		  moveWaypointForward(WP_TRAJECTORY, 0.2f);
+    	  }
+
 
       }
       break;

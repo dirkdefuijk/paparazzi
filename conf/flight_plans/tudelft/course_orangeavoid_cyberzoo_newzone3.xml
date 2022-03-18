@@ -109,25 +109,12 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
       <call_once fun="NavResurrect()"/>
     </block>
-    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
-      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
-    </block>
-    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay wp="STDBY"/>
-    </block>
     <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
-      <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
+      <go wp="_OZ1"/>
+      <go from="_OZ1" wp="_OZ2" hmode="route"/>
       <stay wp="GOAL"/>
     </block>
-    <block name="STOP">
-      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay wp="STDBY"/>
-    </block>
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
-      <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>
       <deroute block="Flare"/>
     </block>
