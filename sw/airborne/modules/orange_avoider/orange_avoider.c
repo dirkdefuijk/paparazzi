@@ -174,7 +174,7 @@ void orange_avoider_periodic(void)
         prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = OBSTACLE_FOUND;
       } else {
-        moveWaypointForward(WP_GOAL, moveDistance);
+        moveWaypointForward(WP_GOAL, 0.4f);
       }
 
       break;
@@ -208,51 +208,60 @@ void orange_avoider_periodic(void)
       break;
     case OUT_OF_BOUNDS:
 
+    	VERBOSE_PRINT("heading(%f)\n", DegOfRad(stateGetNedToBodyEulers_f()->psi));
     	if (InsideSegment1(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment1");
-    		if (stateGetNedToBodyEulers_f()->psi > -115.f){ // should the state function be converted to deg?
+    		if (stateGetNedToBodyEulers_f()->psi > RadOfDeg(-115.f)){ // should the state function be converted to deg?
     			change_nav_heading((-30.f));
     			moveWaypointForward(WP_TRAJECTORY, 0.2f);
+    			heading_increment = -10.f;
           // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
     		} else {
     			change_nav_heading(150.f);
     			moveWaypointForward(WP_TRAJECTORY, 0.2f);
+    			heading_increment = 10.f;
           // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
     		}
     	}
     	if (InsideSegment3(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment3");
-			if (DegOfRad(stateGetNedToBodyEulers_f()->psi) < 65.f){ // see above
+			if (DegOfRad(stateGetNedToBodyEulers_f()->psi) < RadOfDeg(65.f)){ // see above
 				change_nav_heading((-25.f));
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+				heading_increment = -10.f;
         // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			} else {
 				change_nav_heading(-200.f);
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+				heading_increment = -10.f;
         // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			}
 		}
     	if (InsideSegment2(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment2");
-			if (stateGetNedToBodyEulers_f()->psi  > -25.f){ // see above
+			if (stateGetNedToBodyEulers_f()->psi  > RadOfDeg(-25.f)){ // see above
 				change_nav_heading((70.f));
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+				heading_increment = 10.f;
         // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			} else {
 				change_nav_heading(-120.f);
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+				heading_increment = -10.f;
         // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			}
 		}
     	if (InsideSegment4(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y)){
     		VERBOSE_PRINT("Im in Segment4");
-			if (DegOfRad(stateGetNedToBodyEulers_f()->psi) < -205.f){ // see above
+			if (DegOfRad(stateGetNedToBodyEulers_f()->psi) < RadOfDeg(-205.f)){ // see above
 				change_nav_heading((60.f));
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+				heading_increment = 10.f;
         // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			} else {
 				change_nav_heading(-110.f);
 				moveWaypointForward(WP_TRAJECTORY, 0.2f);
+				heading_increment = -10.f;
         // heading_increment = ...; // set heading increment to same sign as change in heading (for SFSH state)
 			}
 		}
@@ -266,7 +275,11 @@ void orange_avoider_periodic(void)
 
       //moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
-      if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+      if (!InsideSegment1(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))
+    		  && !InsideSegment2(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))
+			  && !InsideSegment3(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))
+    		  && !InsideSegment4(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))
+			  &&  InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
         // add offset to head back into arena
         //increase_nav_heading(heading_increment);
 
@@ -276,6 +289,9 @@ void orange_avoider_periodic(void)
         // ensure direction is safe before continuing
         prev_state = navigation_state; // keep track of previous state (only update if it changed)
         navigation_state = SEARCH_FOR_SAFE_HEADING;
+      } else {
+    	  navigation_state = OBSTACLE_FOUND;
+
       }
       break;
     default:
@@ -319,12 +335,26 @@ uint8_t increase_nav_heading(float incrementDegrees)
   VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
   return false;
 }
+uint8_t reflect_nav_heading(float axisdegrees)
+{
+  float new_heading = stateGetNedToBodyEulers_f()->psi + RadOfDeg(axisdegrees);
+
+  // normalize heading to [-pi, pi]
+  FLOAT_ANGLE_NORMALIZE(new_heading);
+
+  // set heading, declared in firmwares/rotorcraft/navigation.h
+  // for performance reasons the navigation variables are stored and processed in Binary Fixed-Point format
+  nav_heading = ANGLE_BFP_OF_REAL(new_heading);
+
+  VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
+  return false;
+}
 uint8_t change_nav_heading(float heading)
 {
   float new_heading =  RadOfDeg(heading);
 
   // normalize heading to [-pi, pi]
-  FLOAT_ANGLE_NORMALIZE(new_heading);
+  //FLOAT_ANGLE_NORMALIZE(new_heading);
 
   // set heading, declared in firmwares/rotorcraft/navigation.h
   // for performance reasons the navigation variables are stored and processed in Binary Fixed-Point format
