@@ -54,69 +54,9 @@ int opencv_example(char *img, int width, int height)
   // Partition in 8 vertical section ------------------------------
   static Mat img_sections[8];
   static int N = 8;
-  // int height = (int) sizeof(image[0]);
-  // int height = image.size[0];
-  // int width  = image.size[1]; // width
   Mat image = M1;
   int width_cutoff = width / N;
 
-  // for (size_t i = 0; i < N; i++)
-  // {
-    // int y = height-1;
-    // int h = 0;
-    // int w = width_cutoff-1;
-    // int x = w*i-1;
-    // img_sections[i] = image( Range(1,y), Range(x,x+w-1) );
-
-    // img_sections[i] = image(cv::Rect(width_cutoff*i, 0, width_cutoff-1, height));
-    // img_sections[i] = image(cv::Rect(width_cutoff, 0, width_cutoff, height)); // Dummy --W
-  // }
-  // int y = 520-1;
-  // int x = 240-1;
-  // int w = 30-1;
-  // img_sections[0] = image( Range(1,y), Range(1,w) );
-
-  // int imgheight = img.rows;
-	// int imgwidth = img.cols;
-  // x = imgwidth - 1;
-  // y = imgheight - 1;
-  // x1 = imgwidth - 1;
-  // y1 = imgheight - 1;
-  // // crop the patches of size MxN
-  // Mat tiles = image_copy(Range(y, imgheight), Range(x, imgwidth));
-  // rectangle(image, Point(x,y), Point(x1,y1), Scalar(0,255,0), 1);
-
-  // int X = 240;
-  // int Y = 520;
-  // int W = 30;
-
-  for (size_t i = 0; i < N; i++)
-  {
-    // img_sections[i] = image(Rect(X,Y,W,H);
-
-    // image(cv::Rect(xMin,yMin,xMax-xMin,yMax-yMin)).copyTo(img_sections[i]);
-    
-    // Mat cropped_image = background(Range(10,20), Range(100,200));
-
-    int y = height;
-    int h = 0;
-    int w = width_cutoff;
-    int x = w*i;
-    Mat img_sections[i] = image( Range(0,y), Range(x,x+w) );
-  }
-  
-
-  
-
-  // img_sections[1] = image( Range(1,y), Range(w  ,w*2) );
-  // img_sections[2] = image( Range(1,y), Range(w*2,w*3) );
-  // img_sections[3] = image( Range(1,y), Range(w*3,w*4) );
-  // img_sections[4] = image( Range(1,y), Range(w*4,w*5) );
-  // img_sections[5] = image( Range(1,y), Range(w*5,w*6) );
-  // img_sections[6] = image( Range(1,y), Range(w*6,w*7) );
-  // img_sections[7] = image( Range(1,y), Range(w*7,x) );
-  
-  
   // Find collisions -------------------------------------------
   int size = 0; // size of the section
   int ratio_best = 1; // best ratio in a given section, number is section
@@ -124,13 +64,17 @@ int opencv_example(char *img, int width, int height)
   int ratio[N] = {0, 0, 0, 0, 0, 0, 0, 0};
   int best_index = 69;
 
+  int y = height;
+  int h = 0;
+  int w = width_cutoff;
+  int x = 0;
   for (size_t i = 0; i < N; i++)
   {
-    int black = countNonZero(img_sections[i]); // Count the amount of black pixels
-    // int black = counter(img_sections[i]);
-    // int black = counter_fast(img_sections[i]);
-    int size_0 = img_sections[i].size[0];
-    int size_1 = img_sections[i].size[1];
+    x = w*i;
+    Mat img_sections = image( Range(0,y), Range(x,x+w) );
+    int black = countNonZero(img_sections); // Count the amount of black pixels
+    int size_0 = img_sections.size[0];
+    int size_1 = img_sections.size[1];
     int pixel_amount = size_0 * size_1;
     
 
