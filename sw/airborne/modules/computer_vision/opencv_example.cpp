@@ -34,103 +34,6 @@ using namespace std;
 using namespace cv;
 #include "opencv_image_functions.h"
 
-// New functions -- W
-//Function to count the colour of the pixels, either black or white
-// void counter(Mat section, int* black, int* white){
-void counter(Mat section, struct int *pixels){
-  size = section.size[1];// width 
-  int count = 0;
-  printf("size of the section: %f", size);
-
-
-  for(int i=0;i<size;i++){   
-    if(section[i]==255)
-      count++;
-        // *black++;
-  }
-  *pixels.black = count;
-  *pixels.white = size - count;
-  // *white = size - *black;
-  return void;
-}
-// Algo speed should not be faster, but often multiple is faster than one
-// Check section type and filetype Mat or convert?
-void counter_fast(Mat section, int *black, int *white){
-  size = section.size[1]; // width 
-  int count = 0;
-  for(int i=0;i<size;i+=5){  // notice the increment in i here...
-      if(arr[i] == n)
-        count++;
-      /* check the next four indexes as well as if arr[i] is the last element of the array */ 
-      else if( arr[i+1] == n && i+1 < size)
-        count++;
-      else if (arr[i + 2] == n && i + 2 < size)
-        count++;
-      else if(arr[i+3] == n && i+3 < size)
-        count++;
-      else if(arr[i+4] == n && i+4 < size)
-        count++;
-    }
-    *black = count;
-    *white = size - black;
-    return 0
-}
-
-Mat * partition_9_vertical(Mat image){
-  static Mat img_sections[9];
-  static int N = 9;
-  // int height = (int) sizeof(image[0]);
-  int height = image.size[0];
-  int width  = image.size[1]; // width
-
-  int width_cutoff = width / N;
-
-  for (size_t i = 0; i < N; i++)
-  {
-    if (i==0)
-    {
-      // img_sections[0] = image[, :width_cutoff*i] 
-      img_sections[0] = image(cv::Rect(0, 0, width_cutoff*i, height));
-      // cv::Mat OutImage = Image(cv::Rect(7,47,1912,980))
-    }else{
-      // img_sections[i] = image[width_cutoff*(i-1), :width_cutoff*i] 
-      img_sections[i] = image(cv::Rect(width_cutoff*i, 0, width_cutoff*(i+1),height));
-    }
-  }
-  return img_sections;
-}
-
-// int collisions(Mat[9] img_sections, double* ratio, double* ratio_best){
-// int collisions(Mat[9] img_sections){
-  int collisions(Mat img_sections){
-  // int white = 0     // collision pixels
-  // int black = 0 // free pixel
-  struct pixels{
-    int white = 0;
-    int black = 0;  };
-  int size = 0; // size of the section
-  int sections[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int best_index = NULL;
-  
-  for (size_t i = 0; i < 9; i++)
-  {
-    counter_fast(sections[i])
-    size = (int) sizeof(section);
-    ratio[i] = black / size; 
-    if (ratio[i] < 0.3){ // the set threshold for allowed amount of black in an image
-      sections[i] = 1;
-      // Only matters if section would be collision free
-      if (ratio[i] <= ratio_best) // the equal ensures that good options don't end up at the end or forgotten
-      {
-        ratio_best = ratio[i];
-        best_index = i;
-      }
-    }
-  }
-  return best_index;
-}
-
-
 int opencv_example(char *img, int width, int height)
 { 
   Mat M(height, width, CV_8UC2, img);
@@ -146,6 +49,102 @@ int opencv_example(char *img, int width, int height)
   dilate(opening, background, M1, Point(-1,-1), 3);
 
   grayscale_opencv_to_yuv422(background, img, width, height);
+  
+  
+  // Partition in 8 vertical section ------------------------------
+  static Mat img_sections[8];
+  static int N = 8;
+  // int height = (int) sizeof(image[0]);
+  // int height = image.size[0];
+  // int width  = image.size[1]; // width
+  Mat image = M1;
+  int width_cutoff = width / N;
 
+  // for (size_t i = 0; i < N; i++)
+  // {
+    // int y = height-1;
+    // int h = 0;
+    // int w = width_cutoff-1;
+    // int x = w*i-1;
+    // img_sections[i] = image( Range(1,y), Range(x,x+w-1) );
+
+    // img_sections[i] = image(cv::Rect(width_cutoff*i, 0, width_cutoff-1, height));
+    // img_sections[i] = image(cv::Rect(width_cutoff, 0, width_cutoff, height)); // Dummy --W
+  // }
+  // int y = 520-1;
+  // int x = 240-1;
+  // int w = 30-1;
+  // img_sections[0] = image( Range(1,y), Range(1,w) );
+
+  // int imgheight = img.rows;
+	// int imgwidth = img.cols;
+  // x = imgwidth - 1;
+  // y = imgheight - 1;
+  // x1 = imgwidth - 1;
+  // y1 = imgheight - 1;
+  // // crop the patches of size MxN
+  // Mat tiles = image_copy(Range(y, imgheight), Range(x, imgwidth));
+  // rectangle(image, Point(x,y), Point(x1,y1), Scalar(0,255,0), 1);
+
+  // int X = 240;
+  // int Y = 520;
+  // int W = 30;
+
+  for (size_t i = 0; i < N; i++)
+  {
+    // img_sections[i] = image(Rect(X,Y,W,H);
+
+    // image(cv::Rect(xMin,yMin,xMax-xMin,yMax-yMin)).copyTo(img_sections[i]);
+    
+    // Mat cropped_image = background(Range(10,20), Range(100,200));
+
+    int y = height;
+    int h = 0;
+    int w = width_cutoff;
+    int x = w*i;
+    Mat img_sections[i] = image( Range(0,y), Range(x,x+w) );
+  }
+  
+
+  
+
+  // img_sections[1] = image( Range(1,y), Range(w  ,w*2) );
+  // img_sections[2] = image( Range(1,y), Range(w*2,w*3) );
+  // img_sections[3] = image( Range(1,y), Range(w*3,w*4) );
+  // img_sections[4] = image( Range(1,y), Range(w*4,w*5) );
+  // img_sections[5] = image( Range(1,y), Range(w*5,w*6) );
+  // img_sections[6] = image( Range(1,y), Range(w*6,w*7) );
+  // img_sections[7] = image( Range(1,y), Range(w*7,x) );
+  
+  
+  // Find collisions -------------------------------------------
+  int size = 0; // size of the section
+  int ratio_best = 1; // best ratio in a given section, number is section
+  int sections[N] = {0, 0, 0, 0, 0, 0, 0, 0};
+  int ratio[N] = {0, 0, 0, 0, 0, 0, 0, 0};
+  int best_index = 69;
+
+  for (size_t i = 0; i < N; i++)
+  {
+    int black = countNonZero(img_sections[i]); // Count the amount of black pixels
+    // int black = counter(img_sections[i]);
+    // int black = counter_fast(img_sections[i]);
+    int size_0 = img_sections[i].size[0];
+    int size_1 = img_sections[i].size[1];
+    int pixel_amount = size_0 * size_1;
+    
+
+    ratio[i] = black / pixel_amount; 
+    if (ratio[i] < 0.3){ // the set threshold for allowed amount of black in an image
+      sections[i] = 1;
+      // Only matters if section would be collision free
+      if (ratio[i] <= ratio_best) // the equal ensures that good options don't end up at the end or forgotten
+      {
+        ratio_best = ratio[i];
+        best_index = i;
+      }
+    }
+  }
+  printf("%i",best_index);
   return 0;
 }
