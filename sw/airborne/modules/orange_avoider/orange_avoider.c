@@ -53,14 +53,21 @@ enum navigation_state_t {
 };
 
 // define settings
-float oa_color_count_frac = 0.18f;
+float oa_color_count_frac = 0.5f; // --W up the threshold a lot, as the watershed should find an opensection.
+// float oa_color_count_frac = 0.18f;
 
 // define and initialise global variables
+// TODO: Check redunant variables and own initialization
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
 int32_t color_count = 0;                // orange color count from color filter for obstacle detection
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
+
+// --W -- FIXED 
+int16_t* sections[8] = {NULL};  // The array for the ordered list of sections 
+int16_t best = 0; // check how to initialize
+
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -90,26 +97,34 @@ float FPS_orange_avoider = 0;
 #ifndef ORANGE_AVOIDER_VISUAL_DETECTION_ID
 #define ORANGE_AVOIDER_VISUAL_DETECTION_ID ABI_BROADCAST
 #endif
-
-// callback - extracts color_count and center pixels from object
+// abi event to either subscribe or publish --W
+// cb = callback
+// extracts color_count and center_pixel from object
 static abi_event color_detection_ev;
+// TODO: Check if uint8_t[8] should be used -- if this is about the center pixel, no cause we need negative numbers too (uint = unsigned int)
+// static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
+//                                int16_t pixel_x, int16_t pixel_y,
+//                                int16_t pixel_width, int16_t pixel_height,
+//                                int32_t quality, int16_t sections, int16_t best),
 static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
-                               int16_t pixel_x, int16_t pixel_y,
-                               int16_t __attribute__((unused)) pixel_width, int16_t __attribute__((unused)) pixel_height,
-                               int32_t quality, int16_t __attribute__((unused)) extra)
+                               int16_t* pixel_x[8], int16_t* pixel_y[8],
+                               int16_t* pixel_width[8], int16_t* pixel_height[8],
+                               int32_t* quality[8], int16_t* sections[8], int16_t* best[8])                               
 {
-  color_count = quality;
-  object_center_x = pixel_x;
-  object_center_y = pixel_y;
+  // [0] is the best section found, so navigate using old navigation code on this
+  // As orange avoider was based on how likely the obstacle was based on orange
+  // An continues to fly on it if obstacle free
+  // TODO: change decision on fly on "object" instead of avoiding it
+  color_count = quality[0]; 
+  object_center_x = pixel_x[0]; // re-use this 
+  object_center_y = pixel_y[0];
+  best = best[0];
 
   // Get FPS
   current_time = get_sys_time_float();
   FPS_orange_avoider = 1/(current_time-last_time);
   last_time = current_time;
-
 }
-
-
 /*
  * Initialisation function, setting the colour filter, random seed and heading_increment
  */
@@ -120,7 +135,9 @@ void orange_avoider_init(void)
   chooseRandomIncrementAvoidance();
 
   // bind our colorfilter callbacks to receive the color filter outputs
-  AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
+  // AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
+  // TODO: What to do with this : ORANGE_AVOIDER_VISUAL_DETECTION_ID ?
+  AbiBindMsgWATERSHED_SECTIONS(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
 }
 
 /*
@@ -130,8 +147,7 @@ void orange_avoider_periodic(void)
 {
   VERBOSE_PRINT("center of object  x = %i\n", object_center_x);
   VERBOSE_PRINT("center of object  y = %i\n", object_center_y);
-  VERBOSE_PRINT("FPS = %f\n", FPS_orange_avoider);
-
+  
   // only evaluate our state machine if we are flying
   if(!autopilot_in_flight()){
     return;
@@ -158,7 +174,6 @@ void orange_avoider_periodic(void)
     case SAFE:
       // Move waypoint forward
       moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-
       if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
         navigation_state = OUT_OF_BOUNDS;
       } else if (obstacle_free_confidence == 0){
@@ -184,9 +199,8 @@ void orange_avoider_periodic(void)
 
       break;
     case SEARCH_FOR_SAFE_HEADING:
-      heading_increment = heading_increment/abs(heading_increment)*5;
       increase_nav_heading(heading_increment);
-      moveWaypointAcross(WP_TRAJECTORY, 1.5f , heading_increment+10);
+      moveWaypointAcross(WP_TRAJECTORY, 0.5f , heading_increment);
       // make sure we have a couple of good readings before declaring the way safe
       if (obstacle_free_confidence >= 2){
         navigation_state = SAFE;
@@ -196,10 +210,7 @@ void orange_avoider_periodic(void)
 
       // moveWaypointForward(WP_TRAJECTORY, 0.2f);
 
-      // Test
-      heading_increment = heading_increment/abs(heading_increment)*5;
       increase_nav_heading(heading_increment);
-
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
       if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
@@ -312,7 +323,8 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
 /*
  * Sets the variable 'heading_increment' randomly positive/negative
  */
-uint8_t chooseRandomIncrementAvoidance(void)
+//TODO: change the functions name
+uint8_t chooseRandomIncrementAvoidance(void) 
 {
   // Randomly choose CW or CCW avoiding direction
 
@@ -327,8 +339,32 @@ uint8_t chooseRandomIncrementAvoidance(void)
 
   // If object is in the left part of the image (object_center_y > 0), yaw right and vice versa
   // Note that the image is rotated by 90 degrees (x=y)
+// section nav  
+switch (best) // 9 sections, best section to fly on
+{
+case 0:
+  heading_increment = 6.f;
+case 1:
+  heading_increment = 4.f;
+case 2:
+  heading_increment = 3.f;
+case 3:
+  heading_increment = 2.f;
+case 4:
+  heading_increment = 0.f;
+case 5:
+  heading_increment = -2.f;
+case 6:
+  heading_increment = -3.f; 
+case 7:
+  heading_increment = -4.f;
+case 8:
+  heading_increment = -6.f;
 
-
+default:
+  break;
+}
+// old nav
   // if (object_center_y > 0 ) {
   //   heading_increment = 5.f;
   //   VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
@@ -336,31 +372,6 @@ uint8_t chooseRandomIncrementAvoidance(void)
   //   heading_increment = -5.f;
   //   VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
   // }
-
-  // If an obstacle found, change heading incre
-
-  
-  if (object_center_y > 0 && object_center_y < 130) {
-    heading_increment = 20.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-  
-  if (object_center_y > 130 && object_center_y < 260){
-    heading_increment = 5.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-
-  if (object_center_y < 0 && object_center_y > -130) {
-    heading_increment = -20.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-  
-  if (object_center_y < -130 && object_center_y > -260){
-    heading_increment = -5.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-
-
   return false;
 }
 
