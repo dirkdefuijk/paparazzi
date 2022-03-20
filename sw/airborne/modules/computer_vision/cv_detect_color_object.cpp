@@ -57,6 +57,8 @@ static pthread_mutex_t mutex;
 #define COLOR_OBJECT_DETECTOR_FPS2 0 ///< Default FPS (zero means run at camera fps)
 #endif
 
+
+
 // TODO: Change description
 /*
  * find_object_centroid
@@ -149,8 +151,9 @@ void color_object_detector_periodic(void)
   // int best = watershed(char *img, int width, int height);
   int width =  240;
   int height = 520;
-  Mat imageIN = char *img;
-  int best = watershed(imageIN, width, height);
+  // Mat imageIN = char *img;
+  // int best = watershed(imageIN, width, height);
+  int best = watershed(struct image_t *img, width, height);
   // static struct color_object_t local_filters[2];
   // pthread_mutex_lock(&mutex);
   // memcpy(local_filters, global_filters, 2*sizeof(struct color_object_t));
