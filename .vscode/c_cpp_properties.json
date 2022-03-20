@@ -9,6 +9,8 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/sw/airborne",
                 "${workspaceFolder}"
             ],
             "defines": [],
