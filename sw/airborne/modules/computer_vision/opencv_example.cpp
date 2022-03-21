@@ -38,6 +38,9 @@ using namespace cv;
 
 int opencv_example(char *img, int width, int height)
 { 
+  // Watershed-----------------------------------------------------
+  // Adapted from:
+  // https://docs.opencv.org/3.4/d7/d1c/tutorial_js_watershed.html
   Mat M(height, width, CV_8UC2, img);
   Mat gray;
   Mat opening;
@@ -50,22 +53,23 @@ int opencv_example(char *img, int width, int height)
   dilate(gray, opening, M1);
   dilate(opening, background, M1, Point(-1,-1), 3);
 
-  grayscale_opencv_to_yuv422(background, img, width, height); //img updated
+  // grayscale_opencv_to_yuv422(background, img, width, height); //img updated
 
+  // Sectioning------------------------------------------------------
+  
+  // Mat image(height, width, CV_8UC2, img); // convert back to mat  
+  // ret,thresh1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+  // Mat image = background; 
 
-  // new stuffs
-  Mat image(height, width, CV_8UC2, img); // convert back to mat
-  // Partition in 8 vertical section ------------------------------
+  // Partition in 8 vertical section --------------------------------
   static Mat img_sections[8];
   static int N = 8;
- 
   int height_cutoff = height / N;
 
   // Find collisions -------------------------------------------
   double ratio_best = 1.0; // best ratio in a given section, number is section
   int sections[N] = {0, 0, 0, 0, 0, 0, 0, 0};
   uint8_t best_index = 9;
-
   int x = width;
   int y = 0;
   // int w = 0;
@@ -73,14 +77,17 @@ int opencv_example(char *img, int width, int height)
   
   for (size_t i = 0; i < N; i++)
   {
-    Mat img_sections = image( Range(y, y+h-1),Range(0,x)  ); //section horizontal, which is the width when rotated
+    Mat img_sections = background( Range(y, y+h-1),Range(0,x)  ); //section horizontal, which is the width when rotated
+    // Mat img_sections = image( Range(y, y+h-1),Range(0,x)  ); //section horizontal, which is the width when rotated
+    // Mat1b binary;
+    // https://stackoverflow.com/questions/31231565/countnonzero-function-gives-an-assertion-error-in-opencv
+    // threshold(img_sections, binary, 1, 1, THRESH_BINARY); 
     y = y + h;
 
     int black = countNonZero(img_sections); // Count the amount of black pixels
     cv::Size s = img_sections.size();
     int pixel_amount = s.width * s.height;
     float ratio = static_cast<double>(black) / pixel_amount;
-
 
     if (ratio < 0.5){ // the set threshold for allowed amount of black in an image
       sections[i] = 1;
