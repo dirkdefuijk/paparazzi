@@ -51,4 +51,3 @@ void opencvdemo_init(void)
 {
   cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func, OPENCVDEMO_FPS, 0);
 }
-

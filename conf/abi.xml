@@ -193,6 +193,12 @@
       <field name="extra"        type="int16_t">Extra field for options like detector source etc</field>
     </message>
 
+    <message name="WATERSHED_BEST" id="42">
+    <!--Made it all arrays so each has value for the different sections-->
+      <field name="best"         type="int8_t">Best section to fly on</field>
+    </message>
+
+
     <message name="JOYSTICK" id="28">
       <!-- 
            This message can be used to send command inputs from a joystick or equivalent
