@@ -99,56 +99,14 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
  * @param filter - which detection filter to process
  * @return img
  */
-// static struct image_t *object_detector(struct image_t *img, uint8_t filter)
+
 static struct image_t *object_detector(struct image_t *img, uint8_t filter)
 {
-  // uint8_t lum_min, lum_max;
-  // uint8_t cb_min, cb_max;
-  // uint8_t cr_min, cr_max;
-  // bool draw;
-
-  // switch (filter){
-  //   case 1:
-  //     lum_min = cod_lum_min1;
-  //     lum_max = cod_lum_max1;
-  //     cb_min = cod_cb_min1;
-  //     cb_max = cod_cb_max1;
-  //     cr_min = cod_cr_min1;
-  //     cr_max = cod_cr_max1;
-  //     draw = cod_draw1;
-  //     break;
-  //   case 2:
-  //     lum_min = cod_lum_min2;
-  //     lum_max = cod_lum_max2;
-  //     cb_min = cod_cb_min2;
-  //     cb_max = cod_cb_max2;
-  //     cr_min = cod_cr_min2;
-  //     cr_max = cod_cr_max2;
-  //     draw = cod_draw2;
-  //     break;
-  //   default:
-  //     return img;
-  // };
-
-  // int32_t x_c, y_c;
-
-  // // Filter and find centroid
-  // uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
-  // VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
-  // VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
-  //       hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
-
-  // pthread_mutex_lock(&mutex);
-  // global_filters[filter-1].color_count = count;
-  // global_filters[filter-1].x_c = x_c;
-  // global_filters[filter-1].y_c = y_c;
-  // global_filters[filter-1].updated = true;
-  // pthread_mutex_unlock(&mutex);
-
   // return img;
   int width =  240;
   int height = 520;
-  return watershed(img,width,height);
+  watershed(img,width,height);
+  return img;
 }
 
 // struct image_t *object_detector1(struct image_t *img, uint8_t camera_id);
@@ -180,42 +138,43 @@ void color_object_detector_init(void)
   pthread_mutex_init(&mutex, NULL);
   // -- W 
   // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
-  cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector1, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
+  cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA1, object_detector1, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
+  // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA1, watershed, COLOR_OBJECT_DETECTOR_FPS1, 1); //--W optiflow_module.c >> similar setup used/needed
   // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
   // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
   // not needed but keep to avoid errors
-#ifdef COLOR_OBJECT_DETECTOR_CAMERA1
-#ifdef COLOR_OBJECT_DETECTOR_LUM_MIN1
-  cod_lum_min1 = COLOR_OBJECT_DETECTOR_LUM_MIN1;
-  cod_lum_max1 = COLOR_OBJECT_DETECTOR_LUM_MAX1;
-  cod_cb_min1 = COLOR_OBJECT_DETECTOR_CB_MIN1;
-  cod_cb_max1 = COLOR_OBJECT_DETECTOR_CB_MAX1;
-  cod_cr_min1 = COLOR_OBJECT_DETECTOR_CR_MIN1;
-  cod_cr_max1 = COLOR_OBJECT_DETECTOR_CR_MAX1;
-#endif
-#ifdef COLOR_OBJECT_DETECTOR_DRAW1
-  cod_draw1 = COLOR_OBJECT_DETECTOR_DRAW1;
-#endif
+// #ifdef COLOR_OBJECT_DETECTOR_CAMERA1
+// #ifdef COLOR_OBJECT_DETECTOR_LUM_MIN1
+//   cod_lum_min1 = COLOR_OBJECT_DETECTOR_LUM_MIN1;
+//   cod_lum_max1 = COLOR_OBJECT_DETECTOR_LUM_MAX1;
+//   cod_cb_min1 = COLOR_OBJECT_DETECTOR_CB_MIN1;
+//   cod_cb_max1 = COLOR_OBJECT_DETECTOR_CB_MAX1;
+//   cod_cr_min1 = COLOR_OBJECT_DETECTOR_CR_MIN1;
+//   cod_cr_max1 = COLOR_OBJECT_DETECTOR_CR_MAX1;
+// #endif
+// #ifdef COLOR_OBJECT_DETECTOR_DRAW1
+//   cod_draw1 = COLOR_OBJECT_DETECTOR_DRAW1;
+// #endif
 
-  cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA1, object_detector1, COLOR_OBJECT_DETECTOR_FPS1, 0);
-#endif
+//   cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA1, object_detector1, COLOR_OBJECT_DETECTOR_FPS1, 0);
+// #endif
 
-#ifdef COLOR_OBJECT_DETECTOR_CAMERA2
-#ifdef COLOR_OBJECT_DETECTOR_LUM_MIN2
-  cod_lum_min2 = COLOR_OBJECT_DETECTOR_LUM_MIN2;
-  cod_lum_max2 = COLOR_OBJECT_DETECTOR_LUM_MAX2;
-  cod_cb_min2 = COLOR_OBJECT_DETECTOR_CB_MIN2;
-  cod_cb_max2 = COLOR_OBJECT_DETECTOR_CB_MAX2;
-  cod_cr_min2 = COLOR_OBJECT_DETECTOR_CR_MIN2;
-  cod_cr_max2 = COLOR_OBJECT_DETECTOR_CR_MAX2;
-#endif
-#ifdef COLOR_OBJECT_DETECTOR_DRAW2
-  cod_draw2 = COLOR_OBJECT_DETECTOR_DRAW2;
-#endif
+// #ifdef COLOR_OBJECT_DETECTOR_CAMERA2
+// #ifdef COLOR_OBJECT_DETECTOR_LUM_MIN2
+//   cod_lum_min2 = COLOR_OBJECT_DETECTOR_LUM_MIN2;
+//   cod_lum_max2 = COLOR_OBJECT_DETECTOR_LUM_MAX2;
+//   cod_cb_min2 = COLOR_OBJECT_DETECTOR_CB_MIN2;
+//   cod_cb_max2 = COLOR_OBJECT_DETECTOR_CB_MAX2;
+//   cod_cr_min2 = COLOR_OBJECT_DETECTOR_CR_MIN2;
+//   cod_cr_max2 = COLOR_OBJECT_DETECTOR_CR_MAX2;
+// #endif
+// #ifdef COLOR_OBJECT_DETECTOR_DRAW2
+//   cod_draw2 = COLOR_OBJECT_DETECTOR_DRAW2;
+// #endif
 
   // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector2, COLOR_OBJECT_DETECTOR_FPS2, 1);
   // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1);
-#endif
+// #endif
 }
 
 /*
@@ -289,7 +248,11 @@ void color_object_detector_init(void)
 
 
 // int watershed(char *img, int width, int height)
-struct image_t watershed(struct image_t *img, int width, int height)
+
+// static struct image_t *watershed(struct image_t *img, int width, int height)
+// struct image_t watershed(struct image_t *img, int width, int height)
+// struct image_t watershed(struct image_t *img, int width, int height)
+void watershed(struct image_t *img, int width, int height)
 {
   Mat M(height, width, CV_8UC2, img);
   Mat gray;
@@ -303,21 +266,26 @@ struct image_t watershed(struct image_t *img, int width, int height)
   dilate(gray, opening, M1);
   dilate(opening, background, M1, Point(-1,-1), 3);
 
-  grayscale_opencv_to_yuv422(background, (char *) img->buf, width, height); //--W detect contour same type conv.
-  
+  // grayscale_opencv_to_yuv422(background, (char *)  img->buf, width, height); //--W detect contour same type conv.
+  grayscale_opencv_to_yuv422( background, img, width, height); //--W detect contour same type conv.grayscale_opencv_to_yuv422(background, (char *) img->buf, width, height); //--W detect contour same type conv.
 
+  
+  // return img;
+  // return NULL;
 }
-uint_8 best best_section(){
+uint_8 best_index best_section(void){
+  Mat M(height, width, CV_8UC2, img); // convert back to mat
   // Partition in 8 vertical section ------------------------------
   static Mat img_sections[8];
   static int N = 8;
-  Mat image = background; 
+  // Mat image = background; 
+  Mat image = M;
   int height_cutoff = height / N;
 
   // Find collisions -------------------------------------------
   double ratio_best = 1.0; // best ratio in a given section, number is section
   int sections[N] = {0, 0, 0, 0, 0, 0, 0, 0};
-  int best_index = 69;
+  uint_8 best_index = 9;
 
   int x = width;
   int y = 0;
@@ -358,8 +326,8 @@ uint_8 best best_section(){
 }
 void color_object_detector_periodic(void)
 {
-  // uint_8 best = best_section(img);
-  uint_8 best = 0;
+  uint_8 best = best_section(img);
+  // uint_8 best = 0;
   //TODO: check this alloc shit
   // TODO: get from images
   // int best = NULL;
@@ -381,3 +349,4 @@ void color_object_detector_periodic(void)
   // if (best!= NULL){
   //   AbiSendMsgWATERSHED_SECTIONS(COLOR_OBJECT_DETECTION2_ID, best);
   }
+// TA file: mateksys_3901_l0x.c

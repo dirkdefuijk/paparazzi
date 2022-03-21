@@ -207,7 +207,7 @@
 
     <message name="WATERSHED_BEST" id="42">
     <!--Made it all arrays so each has value for the different sections-->
-      <field name="best"         type="int16_t*">Best section to fly on</field>
+      <field name="best"         type="int16_t">Best section to fly on</field>
     </message>
 
 

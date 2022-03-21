@@ -45,13 +45,13 @@ extern uint8_t cod_cb_min2;
 extern uint8_t cod_cb_max2;
 extern uint8_t cod_cr_min2;
 extern uint8_t cod_cr_max2;
-extern uint8_t best;
+extern uint8_t best; //--w
 extern bool cod_draw1;
 extern bool cod_draw2;
 
 // Module functions
 extern void color_object_detector_init(void);
 extern void color_object_detector_periodic(void);
-extern int watershed(struct image_t *img, int width, int height);
+extern void watershed(struct image_t *img, int width, int height);
 
 #endif /* COLOR_OBJECT_DETECTOR_CV_H */
