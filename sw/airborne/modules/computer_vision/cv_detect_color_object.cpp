@@ -76,6 +76,8 @@ uint8_t cod_cr_max2 = 0;
 bool cod_draw1 = false;
 bool cod_draw2 = false;
 
+uint8_t best = 9; // --W
+
 // define global variables
 struct color_object_t {
   int32_t x_c;
@@ -97,70 +99,91 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
  * @param filter - which detection filter to process
  * @return img
  */
+// static struct image_t *object_detector(struct image_t *img, uint8_t filter)
 static struct image_t *object_detector(struct image_t *img, uint8_t filter)
 {
-  uint8_t lum_min, lum_max;
-  uint8_t cb_min, cb_max;
-  uint8_t cr_min, cr_max;
-  bool draw;
+  // uint8_t lum_min, lum_max;
+  // uint8_t cb_min, cb_max;
+  // uint8_t cr_min, cr_max;
+  // bool draw;
 
-  switch (filter){
-    case 1:
-      lum_min = cod_lum_min1;
-      lum_max = cod_lum_max1;
-      cb_min = cod_cb_min1;
-      cb_max = cod_cb_max1;
-      cr_min = cod_cr_min1;
-      cr_max = cod_cr_max1;
-      draw = cod_draw1;
-      break;
-    case 2:
-      lum_min = cod_lum_min2;
-      lum_max = cod_lum_max2;
-      cb_min = cod_cb_min2;
-      cb_max = cod_cb_max2;
-      cr_min = cod_cr_min2;
-      cr_max = cod_cr_max2;
-      draw = cod_draw2;
-      break;
-    default:
-      return img;
-  };
+  // switch (filter){
+  //   case 1:
+  //     lum_min = cod_lum_min1;
+  //     lum_max = cod_lum_max1;
+  //     cb_min = cod_cb_min1;
+  //     cb_max = cod_cb_max1;
+  //     cr_min = cod_cr_min1;
+  //     cr_max = cod_cr_max1;
+  //     draw = cod_draw1;
+  //     break;
+  //   case 2:
+  //     lum_min = cod_lum_min2;
+  //     lum_max = cod_lum_max2;
+  //     cb_min = cod_cb_min2;
+  //     cb_max = cod_cb_max2;
+  //     cr_min = cod_cr_min2;
+  //     cr_max = cod_cr_max2;
+  //     draw = cod_draw2;
+  //     break;
+  //   default:
+  //     return img;
+  // };
 
-  int32_t x_c, y_c;
+  // int32_t x_c, y_c;
 
-  // Filter and find centroid
-  uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
-  VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
-  VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
-        hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
+  // // Filter and find centroid
+  // uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
+  // VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
+  // VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
+  //       hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
 
-  pthread_mutex_lock(&mutex);
-  global_filters[filter-1].color_count = count;
-  global_filters[filter-1].x_c = x_c;
-  global_filters[filter-1].y_c = y_c;
-  global_filters[filter-1].updated = true;
-  pthread_mutex_unlock(&mutex);
+  // pthread_mutex_lock(&mutex);
+  // global_filters[filter-1].color_count = count;
+  // global_filters[filter-1].x_c = x_c;
+  // global_filters[filter-1].y_c = y_c;
+  // global_filters[filter-1].updated = true;
+  // pthread_mutex_unlock(&mutex);
 
-  return img;
+  // return img;
+  int width =  240;
+  int height = 520;
+  return watershed(img,width,height);
 }
 
+// struct image_t *object_detector1(struct image_t *img, uint8_t camera_id);
+// struct image_t *object_detector1(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 struct image_t *object_detector1(struct image_t *img, uint8_t camera_id);
 struct image_t *object_detector1(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   return object_detector(img, 1);
+  // int width =  240;
+  // int height = 520;
+  // return watershed(img,width,height);
 }
 
-struct image_t *object_detector2(struct image_t *img, uint8_t camera_id);
-struct image_t *object_detector2(struct image_t *img, uint8_t camera_id __attribute__((unused)))
-{
-  return object_detector(img, 2);
-}
+// // struct image_t *object_detector2(struct image_t *img, uint8_t camera_id);
+// struct image_t *object_detector2(struct image_t *img, uint8_t camera_id);
+// // struct image_t *object_detector2(struct image_t *img, uint8_t camera_id __attribute__((unused)))
+// struct image_t *object_detector2(struct image_t *img, uint8_t camera_id __attribute__((unused)))
+// {
+//   // return object_detector(img, 2);
+//   int width =  240;
+//   int height = 520;
+//   return watershed(img,width,height);
+// }
 
 void color_object_detector_init(void)
 {
+  // These are probably not needed. Were there just to be sure og code, need maybe if failure
   memset(global_filters, 0, 2*sizeof(struct color_object_t));
   pthread_mutex_init(&mutex, NULL);
+  // -- W 
+  // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
+  cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector1, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
+  // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
+  // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1); //--W optiflow_module.c >> similar setup used/needed
+  // not needed but keep to avoid errors
 #ifdef COLOR_OBJECT_DETECTOR_CAMERA1
 #ifdef COLOR_OBJECT_DETECTOR_LUM_MIN1
   cod_lum_min1 = COLOR_OBJECT_DETECTOR_LUM_MIN1;
@@ -190,8 +213,8 @@ void color_object_detector_init(void)
   cod_draw2 = COLOR_OBJECT_DETECTOR_DRAW2;
 #endif
 
-  cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector2, COLOR_OBJECT_DETECTOR_FPS2, 1);
-  cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1);
+  // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, object_detector2, COLOR_OBJECT_DETECTOR_FPS2, 1);
+  // cv_add_to_device(&COLOR_OBJECT_DETECTOR_CAMERA2, watershed, COLOR_OBJECT_DETECTOR_FPS2, 1);
 #endif
 }
 
@@ -266,7 +289,7 @@ void color_object_detector_init(void)
 
 
 // int watershed(char *img, int width, int height)
-int watershed(struct image_t *img, int width, int height)
+struct image_t watershed(struct image_t *img, int width, int height)
 {
   Mat M(height, width, CV_8UC2, img);
   Mat gray;
@@ -280,8 +303,11 @@ int watershed(struct image_t *img, int width, int height)
   dilate(gray, opening, M1);
   dilate(opening, background, M1, Point(-1,-1), 3);
 
-  grayscale_opencv_to_yuv422(background, img, width, height);
+  grayscale_opencv_to_yuv422(background, (char *) img->buf, width, height); //--W detect contour same type conv.
   
+
+}
+uint_8 best best_section(){
   // Partition in 8 vertical section ------------------------------
   static Mat img_sections[8];
   static int N = 8;
@@ -330,19 +356,21 @@ int watershed(struct image_t *img, int width, int height)
   VERBOSE_PRINT("best_index %i",best_index);
   return best_index;
 }
-
 void color_object_detector_periodic(void)
 {
+  // uint_8 best = best_section(img);
+  uint_8 best = 0;
   //TODO: check this alloc shit
+  // TODO: get from images
   // int best = NULL;
   // char *img, int width, int height
   // int best = watershed(char *img, int width, int height);
-  int width =  240;
-  int height = 520;
+  // int width =  240;
+  // int height = 520;
   // Mat imageIN = char *img;
   // int best = watershed(imageIN, width, height);
   // int best = watershed(struct image_t *img, width, height);
-  int best = watershed(img, width, height);
+  // int best = watershed(img, width, height);
   // static struct color_object_t local_filters[2];
   // pthread_mutex_lock(&mutex);
   // memcpy(local_filters, global_filters, 2*sizeof(struct color_object_t));
