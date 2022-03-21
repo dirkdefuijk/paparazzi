@@ -44,7 +44,7 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
 static uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 static uint8_t increase_nav_heading(float incrementDegrees);
 static uint8_t chooseRandomIncrementAvoidance(void);
-
+static uint8_t best;
 enum navigation_state_t {
   SAFE,
   OBSTACLE_FOUND,
@@ -94,21 +94,15 @@ float FPS_orange_avoider = 0;
 // callback - extracts color_count and center pixels from object
 static abi_event color_detection_ev;
 static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
-                               int16_t pixel_x, int16_t pixel_y,
-                               int16_t __attribute__((unused)) pixel_width, int16_t __attribute__((unused)) pixel_height,
-                               int32_t quality, int16_t __attribute__((unused)) extra)
+                               uint8_t best_section)                               
 {
-  color_count = quality;
-  object_center_x = pixel_x;
-  object_center_y = pixel_y;
-
+  // Store best in global var for nav at the end of this file
+  best = best_section;
   // Get FPS
   current_time = get_sys_time_float();
   FPS_orange_avoider = 1/(current_time-last_time);
   last_time = current_time;
-
 }
-
 
 /*
  * Initialisation function, setting the colour filter, random seed and heading_increment
@@ -120,7 +114,8 @@ void orange_avoider_init(void)
   chooseRandomIncrementAvoidance();
 
   // bind our colorfilter callbacks to receive the color filter outputs
-  AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
+  AbiBindMsgVISUAL_DETECTION(1, &color_detection_ev, color_detection_cb);
+  // AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
 }
 
 /*
@@ -314,52 +309,31 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
  */
 uint8_t chooseRandomIncrementAvoidance(void)
 {
-  // Randomly choose CW or CCW avoiding direction
+  // section nav  
+  switch (best) // 9 sections, best section to fly on
+  {
+  case 0:
+    heading_increment = 6.f;
+  case 1:
+    heading_increment = 4.f;
+  case 2:
+    heading_increment = 3.f;
+  case 3:
+    heading_increment = 2.f;
+  case 4:
+    heading_increment = 0.f;
+  case 5:
+    heading_increment = -2.f;
+  case 6:
+    heading_increment = -3.f; 
+  case 7:
+    heading_increment = -4.f;
+  case 8:
+    heading_increment = -6.f;
 
-  // if (rand() % 2 == 0) {
-  //   heading_increment = 5.f;
-  //   VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  // } else {
-  //   heading_increment = -5.f;
-  //   VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  // }
-
-
-  // If object is in the left part of the image (object_center_y > 0), yaw right and vice versa
-  // Note that the image is rotated by 90 degrees (x=y)
-
-
-  // if (object_center_y > 0 ) {
-  //   heading_increment = 5.f;
-  //   VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  // } else {
-  //   heading_increment = -5.f;
-  //   VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  // }
-
-  // If an obstacle found, change heading incre
-
-  
-  if (object_center_y > 0 && object_center_y < 130) {
-    heading_increment = 20.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
+  default:
+    break;
   }
-  
-  if (object_center_y > 130 && object_center_y < 260){
-    heading_increment = 5.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-
-  if (object_center_y < 0 && object_center_y > -130) {
-    heading_increment = -20.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-  
-  if (object_center_y < -130 && object_center_y > -260){
-    heading_increment = -5.f;
-    VERBOSE_PRINT("Set avoidance increment to: %f\n", heading_increment);
-  }
-
 
   return false;
 }
