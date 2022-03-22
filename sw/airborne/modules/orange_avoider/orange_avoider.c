@@ -24,6 +24,8 @@
 #include "modules/core/abi.h"
 #include <time.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #define NAV_C // needed to get the nav functions like Inside...
 #include "generated/flight_plan.h"
@@ -44,7 +46,9 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
 static uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
 static uint8_t increase_nav_heading(float incrementDegrees);
 static uint8_t chooseRandomIncrementAvoidance(void);
-static uint8_t best;
+// static uint8_t best;
+uint8_t best;
+
 enum navigation_state_t {
   SAFE,
   OBSTACLE_FOUND,
@@ -92,7 +96,7 @@ float FPS_orange_avoider = 0;
 #endif
 
 // callback - extracts color_count and center pixels from object
-static abi_event color_detection_ev;
+static abi_event color_detection_ev;    
 static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
                                uint8_t best_section)                               
 {

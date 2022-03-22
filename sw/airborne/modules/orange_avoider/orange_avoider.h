@@ -13,6 +13,8 @@
 #ifndef ORANGE_AVOIDER_H
 #define ORANGE_AVOIDER_H
 
+#include <stdint.h>
+#include <stdbool.h>
 // settings
 extern float oa_color_count_frac;
 extern float d_covered;
