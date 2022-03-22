@@ -98,6 +98,6 @@ int opencv_example(char *img, int width, int height)
       }
     }
   }
-
+  // Send messages 
   AbiSendMsgWATERSHED_BEST(1, best_index);
 }

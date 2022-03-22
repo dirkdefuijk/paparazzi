@@ -13,11 +13,13 @@
 #ifndef ORANGE_AVOIDER_H
 #define ORANGE_AVOIDER_H
 
+#include <stdint.h>
+#include <stdbool.h>
 // settings
 extern float oa_color_count_frac;
 extern float d_covered;
 extern float FPS_orange_avoider;
-
+extern uint8_t best;
 // functions
 extern void orange_avoider_init(void);
 extern void orange_avoider_periodic(void);
