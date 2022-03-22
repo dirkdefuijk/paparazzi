@@ -317,23 +317,23 @@ uint8_t chooseRandomIncrementAvoidance(void)
   switch (best) // 9 sections, best section to fly on
   {
   case 0:
-    heading_increment = 6.f;
+    heading_increment = 20.f;
   case 1:
-    heading_increment = 4.f;
+    heading_increment = 15.f;
   case 2:
-    heading_increment = 3.f;
+    heading_increment = 10.f;
   case 3:
-    heading_increment = 2.f;
+    heading_increment = 5.f;
   case 4:
     heading_increment = 0.f;
   case 5:
-    heading_increment = -2.f;
+    heading_increment = -5.f;
   case 6:
-    heading_increment = -3.f; 
+    heading_increment = -10.f; 
   case 7:
-    heading_increment = -4.f;
+    heading_increment = -15.f;
   case 8:
-    heading_increment = -6.f;
+    heading_increment = -20.f;
 
   default:
     break;
