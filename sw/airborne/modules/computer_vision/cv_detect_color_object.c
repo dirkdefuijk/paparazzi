@@ -95,7 +95,10 @@ struct color_object_t global_filters[2];
 uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc, bool draw,
                               uint8_t lum_min, uint8_t lum_max,
                               uint8_t cb_min, uint8_t cb_max,
-                              uint8_t cr_min, uint8_t cr_max);
+                              uint8_t cr_min, uint8_t cr_max,
+                              uint8_t lum_min2, uint8_t lum_max2,
+                              uint8_t cb_min2, uint8_t cb_max2,
+                              uint8_t cr_min2, uint8_t cr_max2);
 
 /*
  * object_detector
@@ -108,6 +111,9 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
   uint8_t lum_min, lum_max;
   uint8_t cb_min, cb_max;
   uint8_t cr_min, cr_max;
+  uint8_t lum_min2, lum_max2;
+  uint8_t cb_min2, cb_max2;
+  uint8_t cr_min2, cr_max2;
   bool draw;
 
   switch (filter){
@@ -118,6 +124,14 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
       cb_max = cod_cb_max1;
       cr_min = cod_cr_min1;
       cr_max = cod_cr_max1;
+
+      lum_min2 = cod_lum_min1;
+      lum_max2 = cod_lum_max1;
+      cb_min2 = cod_cb_min1;
+      cb_max2 = cod_cb_max1;
+      cr_min2 = cod_cr_min1;
+      cr_max2 = cod_cr_max1;
+
       draw = cod_draw1;
       break;
     case 2:
@@ -127,6 +141,14 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
       cb_max = cod_cb_max2;
       cr_min = cod_cr_min2;
       cr_max = cod_cr_max2;
+
+      lum_min2 = cod_lum_min2;
+      lum_max2 = cod_lum_max2;
+      cb_min2 = cod_cb_min2;
+      cb_max2 = cod_cb_max2;
+      cr_min2 = cod_cr_min2;
+      cr_max2 = cod_cr_max2;
+
       draw = cod_draw2;
       break;
     default:
@@ -136,7 +158,8 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
   int32_t x_c, y_c;
 
   // Filter and find centroid
-  uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
+  uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max, 
+                                                               lum_min2, lum_max2, cb_min2, cb_max2, cr_min2, cr_max2);
   VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
   VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
         hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
@@ -221,7 +244,10 @@ void color_object_detector_init(void)
 uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc, bool draw,
                               uint8_t lum_min, uint8_t lum_max,
                               uint8_t cb_min, uint8_t cb_max,
-                              uint8_t cr_min, uint8_t cr_max)
+                              uint8_t cr_min, uint8_t cr_max,
+                              uint8_t lum_min2, uint8_t lum_max2,
+                              uint8_t cb_min2, uint8_t cb_max2,
+                              uint8_t cr_min2, uint8_t cr_max2)
 {
   uint32_t cnt = 0;
   uint32_t cnt_above = 0;
@@ -237,7 +263,6 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
   //50,470 works
 
   for (uint16_t y = filterbox_ymin; y < filterbox_ymax; y++) {
-    // for (uint16_t x = 0; x < img->w; x ++) { // OLD CODE
     for (uint16_t x = filterbox_xmin; x < filterbox_xmax; x ++) { // NEW CODE
       // Check if the color is inside the specified values
       uint8_t *yp, *up, *vp;
