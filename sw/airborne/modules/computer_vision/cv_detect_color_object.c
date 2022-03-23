@@ -76,6 +76,12 @@ int16_t filterbox_ymax = 420;
 int16_t filterbox_xmin = 0;
 int16_t filterbox_xmax = 10;
 
+
+int16_t filterbox2_ymin = 100;
+int16_t filterbox2_ymax = 420;
+int16_t filterbox2_xmin = 30;
+int16_t filterbox2_xmax = 100;
+
 // define global variables
 struct color_object_t {
   int32_t x_c;
@@ -265,9 +271,8 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
     }
   }
 
-  for (uint16_t y = filterbox_ymin; y < filterbox_ymax; y++) {
-    // for (uint16_t x = 0; x < img->w; x ++) { // OLD CODE
-    for (uint16_t x = 30; x < 100; x ++) { // NEW CODE
+  for (uint16_t y = filterbox2_ymin; y < filterbox2_ymax; y++) {
+    for (uint16_t x = filterbox2_xmin; x < filterbox2_xmax; x ++) { // NEW CODE
       // Check if the color is inside the specified values
       uint8_t *yp, *up, *vp;
       if (x % 2 == 0) {
