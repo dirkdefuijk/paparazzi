@@ -314,31 +314,45 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
 uint8_t chooseRandomIncrementAvoidance(void)
 {
   // section nav  
+  VERBOSE_PRINT("section %i\n", best);
   switch (best) // 9 sections, best section to fly on
   {
+    
   case 0:
-    heading_increment = 20.f;
+    heading_increment = 90.f;
   case 1:
-    heading_increment = 15.f;
+    heading_increment = 75.f;
   case 2:
-    heading_increment = 10.f;
+    heading_increment = 50.f;
   case 3:
-    heading_increment = 5.f;
+    heading_increment = 25.f;
   case 4:
     heading_increment = 0.f;
   case 5:
-    heading_increment = -5.f;
+    heading_increment = -25.f;
   case 6:
-    heading_increment = -10.f; 
+    heading_increment = -50.f; 
   case 7:
-    heading_increment = -15.f;
+    heading_increment = -75.f;
   case 8:
-    heading_increment = -20.f;
+    heading_increment = -90.f;
 
   default:
     break;
   }
 
+  return false;
+}
+
+uint8_t MeanderIncrement(void)
+{
+  if (object_center_y > 0) {
+    heading_increment = -5.f;
+    VERBOSE_PRINT("Meander increment to: %f\n", heading_increment);
+  } else {
+    heading_increment = 5.f;
+    VERBOSE_PRINT("Meander increment to: %f\n", heading_increment);
+  }
   return false;
 }
 
