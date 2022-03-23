@@ -157,16 +157,17 @@ void green_attractor_init(void)
  */
 void green_attractor_periodic(void)
 {
+  // only evaluate our state machine if we are flying
+  if(!autopilot_in_flight()){
+    return;
+  }
+  // Print some information to the terminal
   current_state = (int)navigation_state;
   VERBOSE_PRINT("center of green  y = %i\n", green_center_y);
   VERBOSE_PRINT("FPS = %f\n", FPS_green_attractor);
   VERBOSE_PRINT("obstacle_free_confidence = %i\n", obstacle_free_confidence);
   VERBOSE_PRINT("current_state = %i\n", current_state);
 
-  // only evaluate our state machine if we are flying
-  if(!autopilot_in_flight()){
-    return;
-  }
   int px_filterbox = (filterbox_ymax-filterbox_ymin) * (filterbox_xmax-filterbox_xmin);
   // compute current color thresholds
   // for entire image: int32_t color_count_threshold = oa_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
@@ -216,24 +217,15 @@ void green_attractor_periodic(void)
 
       // select new search direction
       chooseIncrementAvoidance();
-      increase_nav_heading(heading_increment);
+      // increase_nav_heading(heading_increment);
       navigation_state = SEARCH_FOR_SAFE_HEADING;
 
       break;
     case SEARCH_FOR_SAFE_HEADING:
-
-      if(color_count < strong_turn_threshold*px_filterbox)
-      {
-        VERBOSE_PRINT("TURN 90");
-        increase_nav_heading(heading_increment/abs(heading_increment)*90);
-      }
-      else{
-        heading_increment = heading_increment/abs(heading_increment)*SFSH_increment;
-
-        increase_nav_heading(heading_increment);
-        moveWaypointAcross(WP_TRAJECTORY, 1.5f , heading_increment); // check +10
-        // make sure we have a couple of good readings before declaring the way safe
-      }
+      heading_increment = heading_increment/abs(heading_increment)*SFSH_increment;
+      increase_nav_heading(heading_increment);
+      // moveWaypointAcross(WP_TRAJECTORY, 1.5f , heading_increment); // check +10
+      // make sure we have a couple of good readings before declaring the way safe
 
 
       if (obstacle_free_confidence >= 2){ // tweak
@@ -242,10 +234,6 @@ void green_attractor_periodic(void)
       }
       break;
     case OUT_OF_BOUNDS:
-
-      // moveWaypointForward(WP_TRAJECTORY, 0.2f);
-
-      // Test
       heading_increment = heading_increment/abs(heading_increment)*5;
       increase_nav_heading(heading_increment);
 
