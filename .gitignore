@@ -197,3 +197,9 @@ tests/results/*
 
 # K-develop
 *.kate-swp
+
+AE4317_2019_datasets/
+
+.idea/
+
+Test_runs/
