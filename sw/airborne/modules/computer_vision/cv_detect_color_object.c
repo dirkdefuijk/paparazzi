@@ -71,10 +71,10 @@ bool cod_draw1 = false;
 bool cod_draw2 = false;
 
 // global variables for filter box settings
-int16_t filterbox_ymin = 120;
-int16_t filterbox_ymax = 400;
-int16_t filterbox_xmin = 0;
-int16_t filterbox_xmax = 10;
+// int16_t filterbox_ymin = 120;
+// int16_t filterbox_ymax = 400;
+// int16_t filterbox_xmin = 0;
+// int16_t filterbox_xmax = 10;
 
 // define global variables
 struct color_object_t {
@@ -227,9 +227,9 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
 
   // Filter only first x pixels from below and the middle y pixels
 
-  for (uint16_t y = filterbox_ymin; y < filterbox_ymax; y++) {
+  for (uint16_t y = 120; y < 400; y++) {
     // for (uint16_t x = 0; x < img->w; x ++) { // OLD CODE
-    for (uint16_t x = filterbox_xmin; x < filterbox_xmax; x ++) { // NEW CODE
+    for (uint16_t x = 0; x < 10; x ++) { // NEW CODE
       // Check if the color is inside the specified values
       uint8_t *yp, *up, *vp;
       if (x % 2 == 0) {

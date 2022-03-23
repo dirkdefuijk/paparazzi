@@ -167,11 +167,11 @@ void green_attractor_periodic(void)
   if(!autopilot_in_flight()){
     return;
   }
-  int px_filterbox = (filterbox_ymax-filterbox_ymin) * (filterbox_xmax-filterbox_xmin);
+  // int px_filterbox = (filterbox_ymax-filterbox_ymin) * (filterbox_xmax-filterbox_xmin);
   // compute current color thresholds
   // for entire image: int32_t color_count_threshold = oa_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
-  // for current filterbox: int32_t color_count_threshold = oa_color_count_frac * 10 * 320;
-  int32_t color_count_threshold = oa_color_count_frac * px_filterbox;
+  int32_t color_count_threshold = oa_color_count_frac * 10 * 320;
+  // int32_t color_count_threshold = oa_color_count_frac * (filterbox_ymax-filterbox_ymin) * (filterbox_xmax-filterbox_xmin);
 
   VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count_threshold, navigation_state);
 
@@ -179,7 +179,7 @@ void green_attractor_periodic(void)
   // update our safe confidence using color threshold
   if(color_count > color_count_threshold){
     obstacle_free_confidence += confidence_increment;
-  } else if(color_count > meander_frac*px_filterbox && safeflight == true){ // if we already see object, start yawing in flight
+  } else if(color_count > meander_frac*3200 && safeflight == true){ // if we already see object, start yawing in flight
     MeanderIncrement();
     increase_nav_heading(heading_increment);
     moveWaypointForward(WP_TRAJECTORY, 1.5f * fminf(maxDistance, (0.2f * 6) + 0.2));
@@ -222,7 +222,7 @@ void green_attractor_periodic(void)
       break;
     case SEARCH_FOR_SAFE_HEADING:
 
-      if(color_count < strong_turn_threshold*px_filterbox)
+      if(color_count < strong_turn_threshold*3200)
       {
         VERBOSE_PRINT("TURN 90");
         increase_nav_heading(heading_increment/abs(heading_increment)*90);
