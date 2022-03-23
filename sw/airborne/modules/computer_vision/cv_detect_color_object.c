@@ -329,13 +329,18 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
       }
     }
   }
-  
-  if (cnt_above > 10) {
-    *p_xc = (int32_t)roundf(tot_x / ((float) cnt) - img->w * 0.5f);
-    *p_yc = (int32_t)roundf(img->h * 0.5f - tot_y / ((float) cnt));
-  } else {
-    *p_xc = 0;
-    *p_yc = 0;
+  if (cnt > 30) {
+      *p_xc = (int32_t)roundf(tot_x / ((float) cnt) - img->w * 0.5f);
+      *p_yc = (int32_t)roundf(img->h * 0.5f - tot_y / ((float) cnt));
+    } 
+  else{
+    if (cnt_above > 30) {
+      *p_xc = (int32_t)roundf(tot_x / ((float) cnt) - img->w * 0.5f);
+      *p_yc = (int32_t)roundf(img->h * 0.5f - tot_y / ((float) cnt));
+    } else {
+      *p_xc = 0;
+      *p_yc = 0;
+    }
   }
   
   return cnt;
