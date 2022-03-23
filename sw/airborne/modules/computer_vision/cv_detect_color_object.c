@@ -77,10 +77,10 @@ int16_t filterbox_xmin = 0;
 int16_t filterbox_xmax = 10;
 
 
-int16_t filterbox2_ymin = 100;
-int16_t filterbox2_ymax = 420;
-int16_t filterbox2_xmin = 30;
-int16_t filterbox2_xmax = 100;
+int16_t filterbox2_ymin = 245;
+int16_t filterbox2_ymax = 255;
+int16_t filterbox2_xmin = 20;
+int16_t filterbox2_xmax = 120;
 
 // define global variables
 struct color_object_t {
@@ -330,7 +330,7 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
     }
   }
   
-  if (cnt_above > 0) {
+  if (cnt_above > 10) {
     *p_xc = (int32_t)roundf(tot_x / ((float) cnt) - img->w * 0.5f);
     *p_yc = (int32_t)roundf(img->h * 0.5f - tot_y / ((float) cnt));
   } else {
