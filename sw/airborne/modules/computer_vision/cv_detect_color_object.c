@@ -71,8 +71,15 @@ bool cod_draw1 = false;
 bool cod_draw2 = false;
 
 // global variables for filter box settings
-int16_t filterbox_ymin = 200;//100;
-int16_t filterbox_ymax = 210;//420;
+//optimal for real world flight
+int16_t filterbox_ymin = 175;
+int16_t filterbox_ymax = 325;
+//validation test
+// int16_t filterbox_ymin = 200;//100;
+// int16_t filterbox_ymax = 210;//420;
+//original
+// int16_t filterbox_ymin = 100;
+// int16_t filterbox_ymax = 420;
 int16_t filterbox_xmin = 0;
 int16_t filterbox_xmax = 10;
 
