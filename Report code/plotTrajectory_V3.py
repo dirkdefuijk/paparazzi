@@ -5,7 +5,7 @@ import numpy as np; np.random.seed(0)
 import seaborn as sns; sns.set_theme()
 import scipy
 import os.path
-
+import math
 def load_position(filename):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -58,10 +58,13 @@ def discritizer_vel(pos_x, pos_z, time):
         for m in range(-3,5):
             print("index m",m_indx)
             for i in range(1, len(pos_x) ):
-                A =[pos_x[i-1], pos_z[i-1]]
-                B= [pos_x[i],pos_z[i]]
-                pointss = np.array([ A, B ])
-                distance = scipy.linalg.norm(pointss, 1)
+                dx = pos_x[i] - pos_x[i-1]
+                dz = pos_z[i] - pos_z[i-1]
+                distance = math.sqrt(dx**2 + dz**2)
+                # A =[pos_x[i-1], pos_z[i-1]]
+                # B= [pos_x[i],pos_z[i]]
+                # pointss = np.array([ A, B ])
+                # distance = scipy.linalg.norm(pointss, 1)
                 dT = time[i]-time[i-1]
                 velocity = distance/ dT #velocity compared to previous datapoint
                 if (pos_x[i] < n and pos_z[i] < m) and (pos_x[i] > n-1 and pos_z[i] > m-1):
@@ -118,7 +121,7 @@ def main():
     ax2 = sns.heatmap(data, cmap="YlGnBu",xticklabels=x_axis_labels, yticklabels=y_axis_labels)
     ax2.invert_yaxis()
 
-    plt.title("Heatmap for velocity of the Bebop")
+    plt.title("Heatmap for the average speed of the Bebop")
     plt.xlabel("x position")
     plt.ylabel("y position")
     plt.savefig("Heatmap_velocity.png", dpi=300)
