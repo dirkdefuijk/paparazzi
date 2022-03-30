@@ -45,11 +45,13 @@ def discritizer_pos(pos_x,pos_z):
         m_indx = 0
         for m in range(-3,5):
             for i in range(len(pos_x)):
-                if (pos_x[i] < n and pos_z[i] < m) and (pos_x[i] > n-1 and pos_z[i] > m-1):
-                    grid_XY[n_indx,m_indx] = grid_XY[n,m] + 1
+                if (pos_x[i] < n and pos_z[i] < m) and (pos_x[i] >= n-1 and pos_z[i] >= m-1):
+                    grid_XY[n_indx,m_indx] = grid_XY[n_indx,m_indx] + 1
             m_indx = m_indx+1
         n_indx= n_indx+1
-
+    for n_indx in range(0,8):
+        for m_indx in range(0,8):
+            grid_XY[n_indx,m_indx] = grid_XY[n_indx,m_indx] / len(pos_x)
     return grid_XY            
 
 def parallel_handler(pos_x, pos_z, time, n, m):
@@ -66,7 +68,7 @@ def parallel_handler(pos_x, pos_z, time, n, m):
             velo = velo + velocity
             grid_count +=  1
     if velo!=0:
-        velo_AVG = velo / grid_count
+        velo_AVG = (velo / grid_count)*100
     else:
         velo_AVG = 0
     return  velo_AVG
@@ -107,7 +109,7 @@ def discritizer_vel(pos_x, pos_z, time):
 
 def main():
     #settings
-    save_on = False
+    save_on = True
     plot_on = True
     #read data
     pos_x, pos_z, time = load_position("group_2.csv")
@@ -131,11 +133,11 @@ def main():
         x_axis_labels = [-4,-3,-2,-1,0,1,2,3,4]
         y_axis_labels = [-4,-3,-2,-1,0,1,2,3,4]    
         plt.figure()   
-        ax = sns.heatmap(data, cmap="YlGnBu", xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+        ax = sns.heatmap(data, cmap="YlGnBu", xticklabels=x_axis_labels, yticklabels=y_axis_labels,  cbar_kws={'label': 'Frequency [%]'})
         ax.invert_yaxis()
         plt.title("Heatmap for position of the Bebop")
         plt.xlabel("x position")
-        plt.ylabel("y position")
+        plt.ylabel("z position")
         plt.savefig("Heatmap_position.png", dpi=300)
 
     # Velocity
@@ -153,12 +155,15 @@ def main():
         x_axis_labels = [-4,-3,-2,-1,0,1,2,3,4]
         y_axis_labels = [-4,-3,-2,-1,0,1,2,3,4]
         plt.figure()
-        ax2 = sns.heatmap(data, cmap="YlGnBu",xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+        ax2 = sns.heatmap(data, cmap="YlGnBu",xticklabels=x_axis_labels, yticklabels=y_axis_labels, cbar_kws={'label': 'Speed [m/s]'})
         ax2.invert_yaxis()
-
+        ax2.legend(["test"])
+        # lgd = Legend(col_fun = col_fun, title = "foooooooo", title_position = "lefttop-rot",
+                     # legend_height = unit(4, "cm"))
         plt.title("Heatmap for the average speed of the Bebop")
         plt.xlabel("x position")
-        plt.ylabel("y position")
+        plt.ylabel("z position")
+        # plt.legend(["Average speed [m/s]"], loc ="lower right")
         plt.savefig("Heatmap_velocity.png", dpi=300)
     
 if __name__ == "__main__":
