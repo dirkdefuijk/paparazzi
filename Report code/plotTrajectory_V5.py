@@ -62,7 +62,7 @@ def parallel_handler(pos_x, pos_z, time, n, m):
         distance = math.sqrt(dx**2 + dz**2)
         dT = time[i]-time[i-1]
         velocity = distance/ dT #velocity compared to previous datapoint
-        if (pos_x[i] < n and pos_z[i] < m) and (pos_x[i] > n-1 and pos_z[i] > m-1):
+        if (pos_x[i] < n and pos_z[i] < m) and (pos_x[i] >= n-1 and pos_z[i] >= m-1):
             velo = velo + velocity
             grid_count +=  1
     if velo!=0:
