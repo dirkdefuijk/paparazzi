@@ -178,13 +178,14 @@ def main():
         # plt.plot(pos_x+4,pos_z+4)
         ax2 = sns.heatmap(data, cmap="YlGnBu",xticklabels=x_axis_labels, yticklabels=y_axis_labels, cbar_kws={'label': 'Speed [m/s]'})
         ax2.invert_yaxis()
-        ax2.legend(["test"])
+        # ax2.legend(["test"])
         plt.title("Heatmap for the average speed of the Bebop")
         plt.xlabel("x position")
         plt.ylabel("z position")
-        plt.show()
-        # plt.legend(["Average speed [m/s]"], loc ="lower right")
+        # plt.show()
         plt.savefig("Heatmap_velocity.png", dpi=300)
+        # plt.legend(["Average speed [m/s]"], loc ="lower right")
+        
     
 if __name__ == "__main__":
     main()
